@@ -108,8 +108,139 @@ async function testRLS() {
     console.error("SECURITY FAILURE: User B successfully renamed User A's category!");
   }
 
-  /* Clean up */
+  /* 6. Test Transactions RLS */
+  console.log("\n--- Testing Transactions RLS ---");
+  console.log("User A inserting test transaction under category...");
+  const { data: insertedTx, error: txInsertErr } = await clientA
+    .from("transactions")
+    .insert({
+      type: "EXPENSE",
+      amount: 150000,
+      category_id: categoryId,
+      date: "2026-07-26",
+      note: "RLS_TEST_TX",
+      user_id: userAId
+    })
+    .select()
+    .single();
+
+  if (txInsertErr) {
+    console.error("Transaction insert failed:", txInsertErr.message);
+    process.exit(1);
+  }
+  const txId = insertedTx.id;
+  console.log(`Transaction inserted successfully. ID: ${txId}`);
+
+  /* User B reads transactions */
+  console.log("User B reading transactions...");
+  const { data: txsB, error: txSelectErrB } = await clientB
+    .from("transactions")
+    .select("*");
+
+  if (txSelectErrB) {
+    console.error("Transactions select for User B failed:", txSelectErrB.message);
+  } else {
+    const hasTx = txsB.some(t => t.id === txId);
+    if (hasTx) {
+      console.error("❌ SECURITY FAILURE: User B was able to see User A's transaction!");
+    } else {
+      console.log("✅ SECURITY SUCCESS: User B cannot see User A's transaction.");
+    }
+  }
+
+  /* User B attempts to modify User A's transaction */
+  console.log("User B attempting to modify User A's transaction amount...");
+  const { error: txUpdateErrB } = await clientB
+    .from("transactions")
+    .update({ amount: 999999 })
+    .eq("id", txId);
+
+  if (txUpdateErrB) {
+    console.log(`Transaction update failed as expected: ${txUpdateErrB.message}`);
+  }
+
+  /* Double check transaction amount from User A's perspective */
+  const { data: txCheckA } = await clientA
+    .from("transactions")
+    .select("amount")
+    .eq("id", txId)
+    .single();
+
+  if (txCheckA && Number(txCheckA.amount) === 150000) {
+    console.log("✅ SECURITY SUCCESS: User B was unable to modify User A's transaction amount.");
+  } else {
+    console.error("❌ SECURITY FAILURE: User B successfully modified User A's transaction!");
+  }
+
+  /* 7. Test Monthly Budgets RLS */
+  console.log("\n--- Testing Monthly Budgets RLS ---");
+  /* Clean up any test budget if exists */
+  await clientA.from("monthly_budgets").delete().eq("year", 2099);
+
+  console.log("User A inserting test budget for year 2099...");
+  const { data: insertedBudget, error: budgetInsertErr } = await clientA
+    .from("monthly_budgets")
+    .insert({
+      month: 7,
+      year: 2099,
+      total_limit: 5000000,
+      user_id: userAId
+    })
+    .select()
+    .single();
+
+  if (budgetInsertErr) {
+    console.error("Budget insert failed:", budgetInsertErr.message);
+    process.exit(1);
+  }
+  const budgetId = insertedBudget.id;
+  console.log(`Budget inserted successfully. ID: ${budgetId}`);
+
+  /* User B reads budgets */
+  console.log("User B reading budgets...");
+  const { data: budgetsB, error: budgetSelectErrB } = await clientB
+    .from("monthly_budgets")
+    .select("*");
+
+  if (budgetSelectErrB) {
+    console.error("Budgets select for User B failed:", budgetSelectErrB.message);
+  } else {
+    const hasBudget = budgetsB.some(b => b.id === budgetId);
+    if (hasBudget) {
+      console.error("❌ SECURITY FAILURE: User B was able to see User A's budget!");
+    } else {
+      console.log("✅ SECURITY SUCCESS: User B cannot see User A's budget.");
+    }
+  }
+
+  /* User B attempts to modify User A's budget */
+  console.log("User B attempting to modify User A's budget limit...");
+  const { error: budgetUpdateErrB } = await clientB
+    .from("monthly_budgets")
+    .update({ total_limit: 9000000 })
+    .eq("id", budgetId);
+
+  if (budgetUpdateErrB) {
+    console.log(`Budget update failed as expected: ${budgetUpdateErrB.message}`);
+  }
+
+  /* Double check budget limit from User A's perspective */
+  const { data: budgetCheckA } = await clientA
+    .from("monthly_budgets")
+    .select("total_limit")
+    .eq("id", budgetId)
+    .single();
+
+  if (budgetCheckA && Number(budgetCheckA.total_limit) === 5000000) {
+    console.log("✅ SECURITY SUCCESS: User B was unable to modify User A's budget limit.");
+  } else {
+    console.error("❌ SECURITY FAILURE: User B successfully modified User A's budget limit!");
+  }
+
+  /* Clean up all test data */
   console.log("\nCleaning up test data...");
+  await clientA.from("transactions").delete().eq("id", txId);
+  await clientA.from("monthly_budgets").delete().eq("id", budgetId);
   await clientA.from("categories").delete().eq("id", categoryId);
   console.log("Done.");
 }

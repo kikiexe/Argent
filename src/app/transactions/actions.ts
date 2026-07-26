@@ -8,7 +8,12 @@ const transactionSchema = z.object({
   type: z.enum(["EXPENSE", "INCOME"], { errorMap: () => ({ message: "Tipe transaksi tidak valid" }) }),
   amount: z.coerce.number().positive("Nominal transaksi harus lebih besar dari 0"),
   category_id: z.string().uuid("Kategori wajib dipilih"),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Format tanggal tidak valid (YYYY-MM-DD)"),
+  date: z.string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Format tanggal tidak valid (YYYY-MM-DD)")
+    .refine((val) => {
+      const d = new Date(val);
+      return !isNaN(d.getTime()) && val === d.toISOString().split("T")[0];
+    }, { message: "Tanggal kalender tidak valid" }),
   note: z.string().trim().max(200, "Catatan maksimal 200 karakter").optional().nullable()
 });
 
