@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import BalanceCard from "@/components/BalanceCard";
+import BudgetSection from "@/components/BudgetSection";
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -45,6 +46,30 @@ export default async function HomePage() {
     .reduce((sum, t) => sum + Number(t.amount), 0);
   
   const balance = totalIncome - totalExpense;
+
+  /* Fetch current month budget limit */
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
+
+  const { data: budgetData } = await supabase
+    .from("monthly_budgets")
+    .select("total_limit")
+    .eq("user_id", user?.id)
+    .eq("month", currentMonth)
+    .eq("year", currentYear)
+    .maybeSingle();
+
+  const totalLimit = budgetData?.total_limit ? Number(budgetData.total_limit) : 0;
+
+  /* Calculate current month expenses */
+  const currentMonthExpenses = txList
+    .filter((t) => {
+      if (t.type !== "EXPENSE") return false;
+      const tDate = new Date(t.date);
+      return tDate.getMonth() + 1 === currentMonth && tDate.getFullYear() === currentYear;
+    })
+    .reduce((sum, t) => sum + Number(t.amount), 0);
 
   /* Get 5 most recent transactions */
   const recentTransactions = txList.slice(0, 5);
@@ -93,6 +118,14 @@ export default async function HomePage() {
 
           {/* Balance Card Container */}
           <BalanceCard balance={balance} />
+
+          {/* Budget Section */}
+          <BudgetSection
+            month={currentMonth}
+            year={currentYear}
+            totalLimit={totalLimit}
+            totalExpense={currentMonthExpenses}
+          />
 
           {/* Quick Actions Grid */}
           <div className="space-y-3">
