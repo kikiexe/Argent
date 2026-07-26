@@ -14,7 +14,7 @@ export default async function CategoriesPage() {
     <div className="min-h-screen bg-canvas flex flex-col justify-between">
       <Header />
       
-      <main className="flex-grow max-w-6xl w-full mx-auto px-6 py-12">
+      <main className="flex-grow max-w-6xl w-full mx-auto px-6 pt-12 pb-24 sm:pb-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           <div className="lg:col-span-1">
             <CategoryForm />

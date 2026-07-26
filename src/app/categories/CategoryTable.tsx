@@ -3,6 +3,8 @@
 import { useState, useTransition } from "react";
 import { deleteCategory } from "./actions";
 import { Category } from "@/types/database";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Trash, ArrowDownLeft01Icon, ArrowUpRight01Icon } from "@hugeicons/core-free-icons";
 
 export default function CategoryTable({ categories }: { categories: Category[] }) {
   const [isPending, startTransition] = useTransition();
@@ -22,9 +24,9 @@ export default function CategoryTable({ categories }: { categories: Category[] }
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between border-b border-ink pb-4">
-        <h2 className="font-display text-2xl font-normal tracking-wide text-ink">
-          Categories Ledger
+      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between border-b border-hairline pb-4">
+        <h2 className="font-sans text-lg font-black text-ink">
+          Categories List
         </h2>
         <span className="font-sans text-[10px] text-body font-bold tracking-widest uppercase mt-1 sm:mt-0">
           {categories.length} Categories Registered
@@ -32,53 +34,48 @@ export default function CategoryTable({ categories }: { categories: Category[] }
       </div>
 
       {error && (
-        <div className="border border-ink bg-canvas p-3 rounded-none text-xs font-sans tracking-wide text-ink font-bold uppercase">
+        <div className="bg-rose-50 text-budget-red border border-rose-100 p-3.5 rounded-2xl text-xs font-sans font-semibold">
           Error: {error}
         </div>
       )}
 
       {categories.length === 0 ? (
-        <div className="border border-hairline p-12 text-center bg-canvas-soft rounded-none">
-          <p className="font-serif text-sm text-body italic">No categories created yet. Use the sidebar to create one.</p>
+        <div className="bg-white border border-hairline p-12 text-center rounded-3xl shadow-sm">
+          <p className="font-sans text-xs text-body font-semibold italic">No categories created yet. Use the form to create one.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-ink">
-                <th className="font-sans font-bold text-[10px] tracking-widest text-ink uppercase pb-3">Name</th>
-                <th className="font-sans font-bold text-[10px] tracking-widest text-ink uppercase pb-3">Type</th>
-                <th className="font-sans font-bold text-[10px] tracking-widest text-ink uppercase pb-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-hairline">
-              {categories.map((category) => (
-                <tr key={category.id} className="hover:bg-canvas-soft group">
-                  <td className="py-4 font-serif text-sm text-ink">{category.name}</td>
-                  <td className="py-4">
-                    <span
-                      className={`inline-block font-sans font-bold text-[9px] tracking-widest uppercase px-2 py-1 rounded-none border ${
-                        category.type === "EXPENSE"
-                          ? "border-budget-red/20 text-budget-red bg-budget-red/5"
-                          : "border-budget-green/20 text-budget-green bg-budget-green/5"
-                      }`}
-                    >
-                      {category.type}
-                    </span>
-                  </td>
-                  <td className="py-4 text-right">
-                    <button
-                      onClick={() => handleDelete(category.id)}
-                      disabled={isPending}
-                      className="font-sans font-bold text-[10px] tracking-widest text-budget-red hover:underline uppercase disabled:opacity-50"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="bg-white border border-hairline rounded-3xl p-3 shadow-sm divide-y divide-gray-50">
+          {categories.map((category) => (
+            <div key={category.id} className="flex items-center justify-between py-3.5 px-2 hover:bg-gray-50/50 transition-colors duration-150">
+              <div className="flex items-center gap-3">
+                <span className="font-sans text-sm font-black text-ink">{category.name}</span>
+                <span
+                  className={`inline-flex items-center gap-1 font-sans font-bold text-[9px] tracking-wider uppercase px-2 py-0.5 rounded-full border ${
+                    category.type === "EXPENSE"
+                      ? "border-rose-100 text-budget-red bg-rose-50/30"
+                      : "border-emerald-100 text-budget-green bg-emerald-50/30"
+                  }`}
+                >
+                  <HugeiconsIcon 
+                    icon={category.type === "EXPENSE" ? ArrowDownLeft01Icon : ArrowUpRight01Icon} 
+                    size={10} 
+                    strokeWidth={2.5} 
+                  />
+                  <span>{category.type}</span>
+                </span>
+              </div>
+              <div>
+                <button
+                  onClick={() => handleDelete(category.id)}
+                  disabled={isPending}
+                  className="font-sans font-bold text-[10px] tracking-wider text-budget-red hover:underline uppercase disabled:opacity-50 inline-flex items-center gap-1"
+                >
+                  <HugeiconsIcon icon={Trash} size={12} strokeWidth={2} />
+                  <span>Delete</span>
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

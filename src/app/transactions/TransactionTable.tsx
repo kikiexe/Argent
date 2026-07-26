@@ -4,6 +4,18 @@ import { useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { deleteTransaction } from "./actions";
 import { Transaction } from "@/types/database";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { 
+  Receipt,
+  Trash, 
+  Calendar01Icon, 
+  Folder01Icon, 
+  NotebookIcon, 
+  Coins01Icon,
+  ArrowDownLeft01Icon,
+  ArrowUpRight01Icon,
+  FilterIcon
+} from "@hugeicons/core-free-icons";
 
 interface ExtendedTransaction extends Transaction {
   categories: {
@@ -88,17 +100,19 @@ export default function TransactionTable({
   return (
     <div className="space-y-6">
       {/* Header and Filter Panel */}
-      <div className="flex flex-col md:flex-row md:items-baseline justify-between border-b border-ink pb-4 gap-4">
-        <h2 className="font-display text-2xl font-normal tracking-wide text-ink">
-          Transactions Ledger
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-hairline pb-4 gap-4">
+        <h2 className="font-sans text-lg font-black text-ink flex items-center gap-2">
+          <HugeiconsIcon icon={Receipt} size={18} strokeWidth={2.2} className="text-indigo-600" />
+          <span>Transactions Ledger</span>
         </h2>
         
         {/* Month/Year Selector Form */}
         <div className="flex items-center gap-2">
+          <HugeiconsIcon icon={FilterIcon} size={14} className="text-gray-400" />
           <select
             value={filterMonth}
             onChange={(e) => handleFilterChange(Number(e.target.value), filterYear)}
-            className="bg-canvas text-ink border border-ink p-2 rounded-none font-sans text-xs uppercase font-bold focus:outline-none focus:ring-1 focus:ring-ink"
+            className="bg-white text-ink border border-hairline p-2 px-3 rounded-2xl font-sans text-xs uppercase font-bold shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150"
           >
             {MONTHS.map((m) => (
               <option key={m.value} value={m.value}>
@@ -110,7 +124,7 @@ export default function TransactionTable({
           <select
             value={filterYear}
             onChange={(e) => handleFilterChange(filterMonth, Number(e.target.value))}
-            className="bg-canvas text-ink border border-ink p-2 rounded-none font-sans text-xs uppercase font-bold focus:outline-none focus:ring-1 focus:ring-ink"
+            className="bg-white text-ink border border-hairline p-2 px-3 rounded-2xl font-sans text-xs uppercase font-bold shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150"
           >
             {currentYearOptions.map((y) => (
               <option key={y} value={y}>
@@ -122,62 +136,61 @@ export default function TransactionTable({
       </div>
 
       {error && (
-        <div className="border border-ink bg-canvas p-3 rounded-none text-xs font-sans tracking-wide text-ink font-bold uppercase">
+        <div className="bg-rose-50 text-budget-red border border-rose-100 p-3.5 rounded-2xl text-xs font-sans font-semibold">
           Error: {error}
         </div>
       )}
 
       {transactions.length === 0 ? (
-        <div className="border border-hairline p-12 text-center bg-canvas-soft rounded-none">
-          <p className="font-serif text-sm text-body italic">No transactions recorded for this period.</p>
+        <div className="bg-white border border-hairline p-12 text-center rounded-3xl shadow-sm">
+          <p className="font-sans text-xs text-body font-semibold italic">No transactions recorded for this period.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-ink">
-                <th className="font-sans font-bold text-[10px] tracking-widest text-ink uppercase pb-3">Date</th>
-                <th className="font-sans font-bold text-[10px] tracking-widest text-ink uppercase pb-3">Category</th>
-                <th className="font-sans font-bold text-[10px] tracking-widest text-ink uppercase pb-3">Note</th>
-                <th className="font-sans font-bold text-[10px] tracking-widest text-ink uppercase pb-3 text-right">Amount</th>
-                <th className="font-sans font-bold text-[10px] tracking-widest text-ink uppercase pb-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-hairline">
-              {transactions.map((transaction) => (
-                <tr key={transaction.id} className="hover:bg-canvas-soft group">
-                  <td className="py-4 font-sans text-xs text-body whitespace-nowrap">
-                    {formatDate(transaction.date)}
-                  </td>
-                  <td className="py-4">
-                    <span className="font-serif text-sm font-bold text-ink block">
+        <div className="bg-white border border-hairline rounded-3xl p-3 shadow-sm divide-y divide-gray-50">
+          {transactions.map((transaction) => {
+            const isIncome = transaction.type === "INCOME";
+            return (
+              <div key={transaction.id} className="flex items-center justify-between py-3.5 px-2 hover:bg-gray-50/50 transition-colors duration-150">
+                <div className="flex items-center gap-3">
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center ${
+                    isIncome 
+                      ? "bg-emerald-100/50 text-budget-green" 
+                      : "bg-rose-100/50 text-budget-red"
+                  }`}>
+                    <HugeiconsIcon 
+                      icon={isIncome ? ArrowDownLeft01Icon : ArrowUpRight01Icon} 
+                      size={14} 
+                      strokeWidth={2.5} 
+                    />
+                  </div>
+                  <div>
+                    <span className="block font-sans text-sm font-black text-ink">
                       {transaction.categories?.name || "Uncategorized"}
                     </span>
-                    <span className="font-sans text-[8px] tracking-wider text-body uppercase">
-                      {transaction.type}
+                    <span className="block font-sans text-[10px] text-body font-semibold">
+                      {formatDate(transaction.date)} {transaction.note && `• ${transaction.note}`}
                     </span>
-                  </td>
-                  <td className="py-4 font-serif text-sm text-body">
-                    {transaction.note || <span className="italic opacity-40">No note</span>}
-                  </td>
-                  <td className={`py-4 font-serif text-sm font-bold text-right whitespace-nowrap ${
-                    transaction.type === "EXPENSE" ? "text-budget-red" : "text-budget-green"
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-4">
+                  <div className={`font-sans text-sm font-black ${
+                    isIncome ? "text-budget-green" : "text-budget-red"
                   }`}>
-                    {transaction.type === "EXPENSE" ? "-" : "+"} {formatCurrency(transaction.amount)}
-                  </td>
-                  <td className="py-4 text-right">
-                    <button
-                      onClick={() => handleDelete(transaction.id)}
-                      disabled={isPending}
-                      className="font-sans font-bold text-[10px] tracking-widest text-budget-red hover:underline uppercase disabled:opacity-50"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    {isIncome ? "+" : "-"} {formatCurrency(transaction.amount)}
+                  </div>
+                  <button
+                    onClick={() => handleDelete(transaction.id)}
+                    disabled={isPending}
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-budget-red hover:bg-rose-50/50 transition-colors disabled:opacity-50"
+                    title="Delete"
+                  >
+                    <HugeiconsIcon icon={Trash} size={14} strokeWidth={2} />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

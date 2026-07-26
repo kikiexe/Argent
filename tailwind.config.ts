@@ -10,26 +10,24 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        canvas: "#ffffff",
-        "canvas-soft": "#f5f5f5",
-        ink: "#000000",
-        "ink-soft": "#1a1a1a",
-        body: "#757575",
-        hairline: "#e0e0e0",
-        link: "#057dbc",
+        canvas: "#f8f9fc",
+        "canvas-soft": "#f1f3f9",
+        card: "#ffffff",
+        ink: "#111827",
+        "ink-soft": "#1f2937",
+        body: "#6b7280",
+        hairline: "#e5e7eb",
+        link: "#4f46e5",
         budget: {
-          green: "#16a34a",
-          yellow: "#d97706",
-          red: "#dc2626"
+          green: "#10b981",
+          yellow: "#f59e0b",
+          red: "#ef4444"
         }
       },
       fontFamily: {
-        display: ["var(--font-playfair)", "serif"],
-        serif: ["var(--font-lora)", "Georgia", "serif"],
+        display: ["var(--font-inter)", "sans-serif"],
+        serif: ["var(--font-inter)", "sans-serif"],
         sans: ["var(--font-inter)", "sans-serif"]
-      },
-      borderRadius: {
-        none: "0"
       }
     }
   },

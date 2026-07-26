@@ -2,29 +2,31 @@
 
 import { useActionState } from "react";
 import { login } from "./actions";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Mail01Icon, LockIcon, Logout01Icon } from "@hugeicons/core-free-icons";
 
 export default function LoginPage() {
   const [state, formAction, isPending] = useActionState(login, null);
 
   return (
     <div className="min-h-screen bg-canvas flex flex-col justify-between">
-      {/* Editorial Masthead Header */}
-      <header className="border-b border-hairline py-8 px-6 text-center">
-        <h1 className="font-display text-4xl md:text-5xl font-normal tracking-[0.2em] text-ink uppercase">
+      {/* Modern Centered Header */}
+      <header className="py-12 px-6 text-center">
+        <h1 className="font-sans text-4xl md:text-5xl font-black tracking-tight text-indigo-600 uppercase">
           Argent
         </h1>
-        <p className="font-sans text-[10px] md:text-xs font-bold tracking-[0.3em] text-body uppercase mt-2">
+        <p className="font-sans text-[10px] md:text-xs font-bold tracking-[0.25em] text-body uppercase mt-2">
           Personal Finance Tracker
         </p>
       </header>
 
       {/* Main Login Card Section */}
-      <main className="flex-grow flex items-center justify-center px-4 py-12">
-        <div className="w-full max-w-md bg-canvas-soft border border-hairline p-8 md:p-12 rounded-none">
-          <h2 className="font-sans font-bold text-lg tracking-widest text-ink uppercase mb-2">
+      <main className="flex-grow flex items-center justify-center px-4 pb-16">
+        <div className="w-full max-w-md bg-white border border-hairline p-8 md:p-10 rounded-3xl shadow-lg">
+          <h2 className="font-sans font-black text-lg text-ink uppercase mb-2">
             Sign In
           </h2>
-          <p className="font-serif text-sm text-body leading-relaxed mb-8">
+          <p className="font-sans text-xs text-body leading-relaxed mb-6 font-semibold">
             Access your isolated personal ledger. Accounts are managed exclusively by system administrators.
           </p>
 
@@ -32,40 +34,50 @@ export default function LoginPage() {
             <div>
               <label 
                 htmlFor="email" 
-                className="block font-sans font-bold text-xs tracking-widest text-ink uppercase mb-2"
+                className="block font-sans font-bold text-[10px] tracking-widest text-body uppercase mb-2"
               >
                 Email Address
               </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                disabled={isPending}
-                className="w-full bg-canvas text-ink border border-ink p-3 rounded-none font-sans text-sm focus:outline-none focus:ring-1 focus:ring-ink disabled:opacity-50"
-                placeholder="name@example.com"
-              />
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                  <HugeiconsIcon icon={Mail01Icon} size={16} strokeWidth={1.8} />
+                </div>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  disabled={isPending}
+                  className="w-full bg-gray-50 text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:bg-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
+                  placeholder="name@example.com"
+                />
+              </div>
             </div>
 
             <div>
               <label 
                 htmlFor="password" 
-                className="block font-sans font-bold text-xs tracking-widest text-ink uppercase mb-2"
+                className="block font-sans font-bold text-[10px] tracking-widest text-body uppercase mb-2"
               >
                 Password
               </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                disabled={isPending}
-                className="w-full bg-canvas text-ink border border-ink p-3 rounded-none font-sans text-sm focus:outline-none focus:ring-1 focus:ring-ink disabled:opacity-50"
-              />
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                  <HugeiconsIcon icon={LockIcon} size={16} strokeWidth={1.8} />
+                </div>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  disabled={isPending}
+                  className="w-full bg-gray-50 text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:bg-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
+                />
+              </div>
             </div>
 
             {state?.error && (
-              <div className="border border-ink bg-canvas p-3 rounded-none text-xs font-sans tracking-wide text-ink font-bold uppercase">
+              <div className="bg-rose-50 text-budget-red border border-rose-100 p-3.5 rounded-2xl text-xs font-sans font-semibold">
                 Error: {state.error}
               </div>
             )}
@@ -73,16 +85,17 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isPending}
-              className="w-full bg-ink text-canvas p-3 rounded-none font-sans font-bold text-sm tracking-widest uppercase hover:bg-zinc-800 transition-colors duration-200 disabled:opacity-50"
+              className="w-full bg-indigo-600 text-white p-3.5 rounded-full font-sans font-bold text-xs tracking-wider uppercase hover:bg-indigo-700 transition-colors duration-150 disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {isPending ? "Authenticating..." : "Enter Ledger"}
+              <HugeiconsIcon icon={Logout01Icon} size={16} strokeWidth={2} />
+              <span>{isPending ? "Authenticating..." : "Enter Ledger"}</span>
             </button>
           </form>
         </div>
       </main>
 
-      {/* Editorial Footer */}
-      <footer className="border-t border-hairline py-6 px-6 text-center bg-canvas">
+      {/* Modern Footer */}
+      <footer className="border-t border-hairline py-6 px-6 text-center bg-white shadow-inner">
         <p className="font-sans text-[10px] tracking-widest text-body uppercase">
           Argent &copy; 2026. All rights reserved.
         </p>
