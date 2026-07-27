@@ -1,12 +1,13 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { login } from "./actions";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Mail01Icon, LockIcon, Logout01Icon } from "@hugeicons/core-free-icons";
+import { Mail01Icon, LockIcon, Logout01Icon, EyeIcon, EyeOffIcon } from "@hugeicons/core-free-icons";
 
 export default function LoginPage() {
   const [state, formAction, isPending] = useActionState(login, null);
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div className="min-h-screen bg-canvas flex flex-col justify-between">
@@ -48,7 +49,7 @@ export default function LoginPage() {
                   type="email"
                   required
                   disabled={isPending}
-                  className="w-full bg-canvas-soft text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
+                  className="w-full bg-canvas-soft text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-base sm:text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
                   placeholder="name@example.com"
                 />
               </div>
@@ -68,11 +69,19 @@ export default function LoginPage() {
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   required
                   disabled={isPending}
-                  className="w-full bg-canvas-soft text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
+                  className="w-full bg-canvas-soft text-ink border border-hairline p-3 pl-10 pr-10 rounded-2xl font-sans text-base sm:text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-ink transition-colors"
+                  title={showPassword ? "Hide password" : "Show password"}
+                >
+                  <HugeiconsIcon icon={showPassword ? EyeIcon : EyeOffIcon} size={16} strokeWidth={1.8} />
+                </button>
               </div>
             </div>
 

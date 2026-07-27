@@ -68,9 +68,9 @@ export default async function HomePage() {
   /* Get 5 most recent transactions */
   const recentTransactions = txList.slice(0, 5);
 
-  const userName = user?.email 
+  const userName = user?.user_metadata?.full_name || user?.user_metadata?.name || (user?.email 
     ? user.email.split("@")[0].replace(/[._]/g, " ")
-    : "Guest";
+    : "Guest");
 
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr);
@@ -93,7 +93,7 @@ export default async function HomePage() {
     <div className="min-h-screen bg-canvas flex flex-col justify-between">
       <div>
         {/* Unified Top Curved Header with Balance Card (Full-Bleed) */}
-        <BalanceCard balance={balance} userName={userName} userEmail={user?.email || ""} />
+        <BalanceCard balance={balance} userName={userName} userEmail={user?.email || ""} transactions={txList} />
 
         <main className="max-w-4xl w-full mx-auto px-6 pt-10 pb-32 sm:pb-12 space-y-8">
 

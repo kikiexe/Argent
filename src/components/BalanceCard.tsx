@@ -5,26 +5,31 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/app/actions";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { Transaction } from "@/types/database";
+import BalanceChart from "./BalanceChart";
 import { 
   ArrowDownLeft01Icon, 
   ArrowUpRight01Icon, 
   EyeIcon, 
   EyeOffIcon,
-  Notification01Icon,
   Logout01Icon,
   Home01Icon,
   Folder01Icon,
   Receipt,
-  UserIcon
+  UserIcon,
+  Analytics01Icon,
+  Wallet01Icon
 } from "@hugeicons/core-free-icons";
 
 interface BalanceCardProps {
   balance: number;
   userName: string;
   userEmail: string;
+  transactions: (Transaction & { categories: { name: string; type: "EXPENSE" | "INCOME" } | null })[];
 }
 
-export default function BalanceCard({ balance, userName, userEmail }: BalanceCardProps) {
+export default function BalanceCard({ balance, userName, userEmail, transactions }: BalanceCardProps) {
+  const [view, setView] = useState<"balance" | "statistics">("balance");
   const [isVisible, setIsVisible] = useState(true);
   const pathname = usePathname();
 
@@ -34,7 +39,6 @@ export default function BalanceCard({ balance, userName, userEmail }: BalanceCar
       currency: "IDR",
       minimumFractionDigits: 0
     }).format(amount);
-    // Add space after Rp to match reference
     return formatted.replace("Rp", "Rp ");
   };
 
@@ -83,12 +87,22 @@ export default function BalanceCard({ balance, userName, userEmail }: BalanceCar
             })}
           </nav>
 
-          {/* User Profile & Logout */}
+          {/* User Profile, Switch & Logout */}
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1.5 text-indigo-100 font-sans text-xs">
               <HugeiconsIcon icon={UserIcon} size={13} strokeWidth={1.8} />
               <span className="font-semibold">{userEmail}</span>
             </div>
+            
+            {/* Desktop View Switcher */}
+            <button
+              onClick={() => setView(view === "balance" ? "statistics" : "balance")}
+              className="bg-white/10 text-white hover:bg-white/20 border border-white/10 px-3.5 py-1.5 rounded-full font-sans font-bold text-[10px] tracking-wider uppercase transition-all duration-150 flex items-center gap-1.5"
+            >
+              <HugeiconsIcon icon={view === "balance" ? Analytics01Icon : Wallet01Icon} size={12} strokeWidth={2} className="text-indigo-200" />
+              <span>{view === "balance" ? "Statistics" : "Balance"}</span>
+            </button>
+
             <form action={logout}>
               <button
                 type="submit"
@@ -108,21 +122,38 @@ export default function BalanceCard({ balance, userName, userEmail }: BalanceCar
             <div className="w-12 h-12 rounded-full bg-white/20 text-white border border-white/20 font-bold flex items-center justify-center font-sans text-sm shadow-md uppercase">
               {userName.slice(0, 2)}
             </div>
+            
             <div className="space-y-0.5">
-              <span className="block font-sans text-[10px] text-white/60 font-semibold uppercase tracking-wider">
-                Good Day!
-              </span>
-              <h2 className="font-sans text-base font-bold text-white capitalize leading-none">
-                {userName}
-              </h2>
+              {view === "balance" ? (
+                <>
+                  <span className="block font-sans text-[10px] text-white/60 font-semibold uppercase tracking-wider">
+                    Hi!
+                  </span>
+                  <h2 className="font-sans text-base font-bold text-white capitalize leading-none">
+                    {userName}
+                  </h2>
+                </>
+              ) : (
+                <>
+                  <span className="block font-sans text-[10px] text-white/60 font-semibold uppercase tracking-wider">
+                    Overview
+                  </span>
+                  <h2 className="font-sans text-base font-bold text-white capitalize leading-none">
+                    Statistics
+                  </h2>
+                </>
+              )}
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Bell Icon with pulsing badge */}
-            <button className="w-10 h-10 bg-white/10 hover:bg-white/15 border border-white/10 rounded-full flex items-center justify-center text-white transition-all shadow-sm relative">
-              <HugeiconsIcon icon={Notification01Icon} size={18} strokeWidth={1.8} />
-              <span className="absolute top-2 right-2.5 w-2.5 h-2.5 bg-rose-500 rounded-full ring-2 ring-[#4f46e5] animate-pulse" />
+            {/* Mobile View Switcher (Replaces Notification Bell) */}
+            <button 
+              onClick={() => setView(view === "balance" ? "statistics" : "balance")}
+              className="w-10 h-10 bg-white/10 hover:bg-white/15 border border-white/10 rounded-full flex items-center justify-center text-white transition-all shadow-sm"
+              title={view === "balance" ? "View Statistics" : "View Balance"}
+            >
+              <HugeiconsIcon icon={view === "balance" ? Analytics01Icon : Wallet01Icon} size={18} strokeWidth={1.8} />
             </button>
             
             {/* Sign Out Shortcut */}
@@ -134,47 +165,55 @@ export default function BalanceCard({ balance, userName, userEmail }: BalanceCar
           </div>
         </div>
 
-        {/* Balance details */}
-        <div className="space-y-1 mb-5">
-          <div className="flex items-center gap-2">
-            <span className="font-sans text-[10px] font-bold tracking-widest text-white/70 uppercase">
-              Account Balance
-            </span>
-            <button
-              onClick={() => setIsVisible(!isVisible)}
-              className="text-white/60 hover:text-white transition-colors"
-            >
-              <HugeiconsIcon icon={isVisible ? EyeIcon : EyeOffIcon} size={15} strokeWidth={2} />
-            </button>
-          </div>
+        {/* Dynamic Card Content Area */}
+        {view === "balance" ? (
+          <>
+            {/* Balance details */}
+            <div className="space-y-1 mb-5">
+              <div className="flex items-center gap-2">
+                <span className="font-sans text-[10px] font-bold tracking-widest text-white/70 uppercase">
+                  Account Balance
+                </span>
+                <button
+                  onClick={() => setIsVisible(!isVisible)}
+                  className="text-white/60 hover:text-white transition-colors"
+                >
+                  <HugeiconsIcon icon={isVisible ? EyeIcon : EyeOffIcon} size={15} strokeWidth={2} />
+                </button>
+              </div>
 
-          <div className="space-y-0.5">
-            <h3 className="font-sans text-3xl font-extrabold tracking-tight transition-all duration-300">
-              {isVisible ? formatCurrency(balance) : "••••••••••••"}
-            </h3>
-            <p className="font-sans text-[8px] tracking-[0.25em] text-white/40 font-semibold uppercase">
-              Personal Ledger Active
-            </p>
-          </div>
-        </div>
+              <div className="space-y-0.5">
+                <h3 className="font-sans text-3xl font-extrabold tracking-tight transition-all duration-300">
+                  {isVisible ? formatCurrency(balance) : "••••••••••••"}
+                </h3>
+                <p className="font-sans text-[8px] tracking-[0.25em] text-white/40 font-semibold uppercase">
+                  Personal Ledger Active
+                </p>
+              </div>
+            </div>
 
-        {/* Action buttons */}
-        <div className="grid grid-cols-2 gap-3 pt-1">
-          <Link
-            href="/transactions?type=INCOME"
-            className="bg-white/10 hover:bg-white/20 border border-white/10 p-3 rounded-full font-sans font-bold text-xs tracking-wider transition-all duration-150 flex items-center justify-center gap-1.5 shadow-sm"
-          >
-            <HugeiconsIcon icon={ArrowDownLeft01Icon} size={14} strokeWidth={2.2} />
-            <span>Add Income</span>
-          </Link>
-          <Link
-            href="/transactions?type=EXPENSE"
-            className="bg-white/10 hover:bg-white/20 border border-white/10 p-3 rounded-full font-sans font-bold text-xs tracking-wider transition-all duration-150 flex items-center justify-center gap-1.5 shadow-sm"
-          >
-            <HugeiconsIcon icon={ArrowUpRight01Icon} size={14} strokeWidth={2.2} />
-            <span>Add Expense</span>
-          </Link>
-        </div>
+            {/* Action buttons */}
+            <div className="grid grid-cols-2 gap-3 pt-1">
+              <Link
+                href="/transactions?type=INCOME"
+                className="bg-white/10 hover:bg-white/20 border border-white/10 p-3 rounded-full font-sans font-bold text-xs tracking-wider transition-all duration-150 flex items-center justify-center gap-1.5 shadow-sm"
+              >
+                <HugeiconsIcon icon={ArrowDownLeft01Icon} size={14} strokeWidth={2.2} />
+                <span>Add Income</span>
+              </Link>
+              <Link
+                href="/transactions?type=EXPENSE"
+                className="bg-white/10 hover:bg-white/20 border border-white/10 p-3 rounded-full font-sans font-bold text-xs tracking-wider transition-all duration-150 flex items-center justify-center gap-1.5 shadow-sm"
+              >
+                <HugeiconsIcon icon={ArrowUpRight01Icon} size={14} strokeWidth={2.2} />
+                <span>Add Expense</span>
+              </Link>
+            </div>
+          </>
+        ) : (
+          /* Statistics Card Body */
+          <BalanceChart transactions={transactions} />
+        )}
 
       </div>
     </header>
