@@ -5,7 +5,10 @@ import MobileNavigation from "@/components/MobileNavigation";
 import type { Viewport } from "next";
 
 export const viewport: Viewport = {
-  themeColor: "#4f46e5",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#121212" }
+  ],
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover"

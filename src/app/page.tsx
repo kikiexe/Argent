@@ -7,6 +7,14 @@ import {
   ArrowDownLeft01Icon,
   ArrowUpRight01Icon
 } from "@hugeicons/core-free-icons";
+import type { Viewport } from "next";
+
+export const viewport: Viewport = {
+  themeColor: "#4f46e5",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover"
+};
 
 export default async function HomePage() {
   const supabase = await createClient();
