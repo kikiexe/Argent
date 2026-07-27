@@ -1,17 +1,11 @@
-import Header from "@/components/Header";
 import BalanceCard from "@/components/BalanceCard";
 import BudgetSection from "@/components/BudgetSection";
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { 
-  Notification01Icon,
   ArrowDownLeft01Icon,
-  ArrowUpRight01Icon,
-  Folder01Icon,
-  Receipt,
-  PlusSignIcon,
-  MinusSignIcon
+  ArrowUpRight01Icon
 } from "@hugeicons/core-free-icons";
 
 export default async function HomePage() {

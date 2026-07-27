@@ -8,10 +8,6 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { 
   Receipt,
   Trash, 
-  Calendar01Icon, 
-  Folder01Icon, 
-  NotebookIcon, 
-  Coins01Icon,
   ArrowDownLeft01Icon,
   ArrowUpRight01Icon,
   FilterIcon,
