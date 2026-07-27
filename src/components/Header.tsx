@@ -15,7 +15,7 @@ export default async function Header() {
     <header className="border-b border-hairline pt-[calc(1rem+env(safe-area-inset-top))] pb-4 px-6 bg-card shadow-sm flex flex-row items-center justify-between gap-4">
       <div className="flex flex-col items-start">
         <Link href="/" className="font-sans text-2xl font-black tracking-tight text-indigo-600 uppercase hover:opacity-80 transition-opacity">
-          Argent
+          Pecune
         </Link>
         <span className="font-sans text-[8px] font-bold tracking-[0.25em] text-body uppercase">
           Ledger

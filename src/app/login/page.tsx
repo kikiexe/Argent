@@ -13,7 +13,7 @@ export default function LoginPage() {
       {/* Modern Centered Header */}
       <header className="py-12 px-6 text-center">
         <h1 className="font-sans text-4xl md:text-5xl font-black tracking-tight text-indigo-600 uppercase">
-          Argent
+          Pecune
         </h1>
         <p className="font-sans text-[10px] md:text-xs font-bold tracking-[0.25em] text-body uppercase mt-2">
           Personal Finance Tracker

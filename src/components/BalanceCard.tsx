@@ -55,7 +55,7 @@ export default function BalanceCard({ balance, userName, userEmail }: BalanceCar
         <div className="hidden sm:flex items-center justify-between border-b border-white/10 pb-4 mb-6">
           <div className="flex flex-col items-start">
             <Link href="/" className="font-sans text-2xl font-black tracking-tight text-white uppercase hover:opacity-80 transition-opacity">
-              Argent
+              Pecune
             </Link>
             <span className="font-sans text-[8px] font-bold tracking-[0.25em] text-indigo-200 uppercase">
               Ledger

@@ -1,6 +1,6 @@
 {
-  "name": "Argent",
-  "short_name": "Argent",
+  "name": "Pecune",
+  "short_name": "Pecune",
   "description": "A finance tracker.",
   "start_url": "/",
   "display": "standalone",
