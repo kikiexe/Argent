@@ -32,10 +32,10 @@ export default async function Header() {
         <form action={logout}>
           <button
             type="submit"
-            className="bg-canvas-soft text-ink hover:bg-canvas-soft/80 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full font-sans font-bold text-[10px] sm:text-xs tracking-wider uppercase transition-colors duration-150 flex items-center gap-1.5"
+            className="w-9 h-9 sm:w-10 sm:h-10 bg-canvas-soft hover:bg-canvas-soft/80 rounded-full flex items-center justify-center text-ink transition-all shadow-sm"
+            title="Sign Out"
           >
-            <HugeiconsIcon icon={Logout01Icon} size={12} strokeWidth={2} className="text-body" />
-            <span>Sign Out</span>
+            <HugeiconsIcon icon={Logout01Icon} size={16} strokeWidth={2} className="text-body" />
           </button>
         </form>
       </div>
