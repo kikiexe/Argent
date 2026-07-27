@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { setMonthlyBudget } from "@/app/budgets/actions";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { PencilEdit02Icon, Settings01Icon, Coins01Icon } from "@hugeicons/core-free-icons";
+import { PencilEdit02Icon, Coins01Icon } from "@hugeicons/core-free-icons";
 
 interface BudgetSectionProps {
   month: number;
@@ -51,12 +51,9 @@ export default function BudgetSection({
   };
 
   return (
-    <div className="bg-white p-6 rounded-3xl border border-hairline shadow-sm space-y-6">
+    <div className="bg-card p-6 rounded-3xl border border-hairline shadow-sm space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
-            <HugeiconsIcon icon={Settings01Icon} size={16} strokeWidth={2} />
-          </div>
           <div>
             <h3 className="font-sans text-sm font-black text-ink">
               Budget - {monthName} {year}
@@ -69,7 +66,7 @@ export default function BudgetSection({
 
         <button
           onClick={() => setIsEditing(!isEditing)}
-          className="w-8 h-8 bg-gray-50 hover:bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:text-ink transition-colors"
+          className="w-8 h-8 bg-canvas-soft hover:bg-canvas-soft/80 rounded-full flex items-center justify-center text-gray-500 hover:text-ink transition-colors"
           title="Edit Limit"
         >
           <HugeiconsIcon icon={PencilEdit02Icon} size={14} strokeWidth={2} />
@@ -82,7 +79,7 @@ export default function BudgetSection({
             await formAction(formData);
             handleFormSuccess();
           }}
-          className="space-y-4 bg-gray-50 p-4 rounded-2xl border border-gray-100"
+          className="space-y-4 bg-canvas-soft p-4 rounded-2xl border border-hairline"
         >
           <input type="hidden" name="month" value={month} />
           <input type="hidden" name="year" value={year} />
@@ -105,7 +102,7 @@ export default function BudgetSection({
                 defaultValue={totalLimit || ""}
                 disabled={isPending}
                 placeholder="e.g. 5000000"
-                className="w-full bg-white text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150"
+                className="w-full bg-card text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150"
               />
             </div>
           </div>
@@ -120,7 +117,7 @@ export default function BudgetSection({
             <button
               type="button"
               onClick={() => setIsEditing(false)}
-              className="px-4 py-2 rounded-full font-sans font-bold text-xs text-body hover:bg-gray-100 transition-colors"
+              className="px-4 py-2 rounded-full font-sans font-bold text-xs text-body hover:bg-canvas-soft transition-colors"
             >
               Cancel
             </button>
@@ -136,7 +133,7 @@ export default function BudgetSection({
       ) : (
         <div className="space-y-4">
           {totalLimit === 0 ? (
-            <div className="text-center p-4 border border-dashed border-gray-200 rounded-2xl bg-gray-50/50">
+            <div className="text-center p-4 border border-dashed border-hairline rounded-2xl bg-canvas-soft">
               <p className="font-sans text-xs text-body font-semibold italic">
                 No budget limit configured for this month.
               </p>
@@ -155,11 +152,11 @@ export default function BudgetSection({
                   <span className="font-sans text-[10px] text-body font-bold uppercase tracking-wider">Limit</span>
                   <span className="font-sans text-sm font-black text-ink">{formatCurrency(totalLimit)}</span>
                 </div>
-                <div className="flex justify-between items-center py-1 border-t border-gray-100/60">
+                <div className="flex justify-between items-center py-1 border-t border-hairline">
                   <span className="font-sans text-[10px] text-body font-bold uppercase tracking-wider">Spent</span>
                   <span className="font-sans text-sm font-black text-ink">{formatCurrency(totalExpense)}</span>
                 </div>
-                <div className="flex justify-between items-center py-1 border-t border-gray-100/60">
+                <div className="flex justify-between items-center py-1 border-t border-hairline">
                   <span className="font-sans text-[10px] text-body font-bold uppercase tracking-wider">
                     {isOverbudget ? "Limit Exceeded" : "Remaining"}
                   </span>
@@ -173,7 +170,7 @@ export default function BudgetSection({
 
               {/* Progress Bar indicator */}
               <div className="space-y-1">
-                <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden shadow-inner relative">
+                <div className="w-full bg-canvas-soft rounded-full h-3 overflow-hidden shadow-inner relative">
                   <div
                     className={`h-full ${progressBarColor} transition-all duration-500 rounded-full`}
                     style={{ width: `${clampedPercentage}%` }}

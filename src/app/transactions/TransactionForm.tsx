@@ -35,7 +35,7 @@ export default function TransactionForm({ categories }: { categories: Category[]
   const todayStr = new Date().toLocaleDateString("sv-SE");
 
   return (
-    <div className="bg-white p-6 rounded-3xl border border-hairline shadow-sm">
+    <div className="bg-card p-6 rounded-3xl border border-hairline shadow-sm">
       <h3 className="font-sans font-black text-sm text-ink uppercase mb-6 flex items-center gap-1.5">
         <HugeiconsIcon icon={Receipt} size={14} strokeWidth={2.2} className="text-indigo-600" />
         <span>Record Transaction</span>
@@ -53,8 +53,8 @@ export default function TransactionForm({ categories }: { categories: Category[]
               onClick={() => setSelectedType("EXPENSE")}
               className={`p-3 rounded-2xl font-sans text-xs font-bold tracking-wider uppercase border transition-all duration-150 flex items-center justify-center gap-1.5 ${
                 selectedType === "EXPENSE"
-                  ? "bg-rose-50 text-budget-red border-rose-200"
-                  : "bg-gray-50 text-body border-gray-200 hover:border-gray-300"
+                  ? "bg-rose-500/10 text-budget-red border-rose-500/20"
+                  : "bg-canvas-soft text-body border-hairline hover:border-body"
               }`}
             >
               <HugeiconsIcon icon={ArrowDownLeft01Icon} size={14} strokeWidth={2.2} />
@@ -66,8 +66,8 @@ export default function TransactionForm({ categories }: { categories: Category[]
               onClick={() => setSelectedType("INCOME")}
               className={`p-3 rounded-2xl font-sans text-xs font-bold tracking-wider uppercase border transition-all duration-150 flex items-center justify-center gap-1.5 ${
                 selectedType === "INCOME"
-                  ? "bg-emerald-50 text-budget-green border-emerald-200"
-                  : "bg-gray-50 text-body border-gray-200 hover:border-gray-300"
+                  ? "bg-emerald-500/10 text-budget-green border-emerald-500/20"
+                  : "bg-canvas-soft text-body border-hairline hover:border-body"
               }`}
             >
               <HugeiconsIcon icon={ArrowUpRight01Icon} size={14} strokeWidth={2.2} />
@@ -82,7 +82,7 @@ export default function TransactionForm({ categories }: { categories: Category[]
             Category
           </label>
           {filteredCategories.length === 0 ? (
-            <div className="text-xs text-body font-sans italic p-4 border border-dashed border-gray-200 bg-gray-50 rounded-2xl">
+            <div className="text-xs text-body font-sans italic p-4 border border-dashed border-hairline bg-canvas-soft rounded-2xl">
               No categories found. Please create an {selectedType.toLowerCase()} category first.
             </div>
           ) : (
@@ -97,7 +97,7 @@ export default function TransactionForm({ categories }: { categories: Category[]
                 disabled={isPending}
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full bg-gray-50 text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:bg-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50 appearance-none"
+                className="w-full bg-canvas-soft text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50 appearance-none"
               >
                 {filteredCategories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
@@ -126,7 +126,7 @@ export default function TransactionForm({ categories }: { categories: Category[]
               required
               disabled={isPending}
               placeholder="0.00"
-              className="w-full bg-gray-50 text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:bg-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
+              className="w-full bg-canvas-soft text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
             />
           </div>
         </div>
@@ -146,7 +146,7 @@ export default function TransactionForm({ categories }: { categories: Category[]
               required
               disabled={isPending}
               defaultValue={todayStr}
-              className="w-full bg-gray-50 text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:bg-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
+              className="w-full bg-canvas-soft text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50 appearance-none"
             />
           </div>
         </div>
@@ -163,15 +163,16 @@ export default function TransactionForm({ categories }: { categories: Category[]
               id="note"
               name="note"
               type="text"
+              maxLength={50}
               disabled={isPending}
               placeholder="e.g. Weekly groceries"
-              className="w-full bg-gray-50 text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:bg-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
+              className="w-full bg-canvas-soft text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
             />
           </div>
         </div>
 
         {state?.error && (
-          <div className="bg-rose-50 text-budget-red border border-rose-100 p-3.5 rounded-2xl text-xs font-sans font-semibold">
+          <div className="bg-rose-500/10 text-budget-red border border-rose-500/20 p-3.5 rounded-2xl text-xs font-sans font-semibold">
             Error: {state.error}
           </div>
         )}

@@ -10,7 +10,7 @@ export default function CategoryForm() {
   const [selectedType, setSelectedType] = useState<"EXPENSE" | "INCOME">("EXPENSE");
 
   return (
-    <div className="bg-white p-6 rounded-3xl border border-hairline shadow-sm">
+    <div className="bg-card p-6 rounded-3xl border border-hairline shadow-sm">
       <h3 className="font-sans font-black text-sm text-ink uppercase mb-6 flex items-center gap-1.5">
         <HugeiconsIcon icon={PlusSignIcon} size={14} strokeWidth={2.2} className="text-indigo-600" />
         <span>New Category</span>
@@ -30,9 +30,10 @@ export default function CategoryForm() {
               name="name"
               type="text"
               required
+              maxLength={10}
               disabled={isPending}
               placeholder="e.g. Groceries"
-              className="w-full bg-gray-50 text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:bg-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
+              className="w-full bg-canvas-soft text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
             />
           </div>
         </div>
@@ -48,8 +49,8 @@ export default function CategoryForm() {
               onClick={() => setSelectedType("EXPENSE")}
               className={`p-3 rounded-2xl font-sans text-xs font-bold tracking-wider uppercase border transition-all duration-150 flex items-center justify-center gap-1.5 ${
                 selectedType === "EXPENSE"
-                  ? "bg-rose-50 text-budget-red border-rose-200"
-                  : "bg-gray-50 text-body border-gray-200 hover:border-gray-300"
+                  ? "bg-rose-500/10 text-budget-red border-rose-500/20"
+                  : "bg-canvas-soft text-body border-hairline hover:border-body"
               }`}
             >
               <HugeiconsIcon icon={ArrowDownLeft01Icon} size={14} strokeWidth={2.2} />
@@ -61,8 +62,8 @@ export default function CategoryForm() {
               onClick={() => setSelectedType("INCOME")}
               className={`p-3 rounded-2xl font-sans text-xs font-bold tracking-wider uppercase border transition-all duration-150 flex items-center justify-center gap-1.5 ${
                 selectedType === "INCOME"
-                  ? "bg-emerald-50 text-budget-green border-emerald-200"
-                  : "bg-gray-50 text-body border-gray-200 hover:border-gray-300"
+                  ? "bg-emerald-500/10 text-budget-green border-emerald-500/20"
+                  : "bg-canvas-soft text-body border-hairline hover:border-body"
               }`}
             >
               <HugeiconsIcon icon={ArrowUpRight01Icon} size={14} strokeWidth={2.2} />
@@ -73,7 +74,7 @@ export default function CategoryForm() {
         </div>
 
         {state?.error && (
-          <div className="bg-rose-50 text-budget-red border border-rose-100 p-3.5 rounded-2xl text-xs font-sans font-semibold">
+          <div className="bg-rose-500/10 text-budget-red border border-rose-500/20 p-3.5 rounded-2xl text-xs font-sans font-semibold">
             Error: {state.error}
           </div>
         )}

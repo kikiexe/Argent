@@ -1,5 +1,14 @@
 import type { Config } from "tailwindcss";
 
+function withOpacity(variableName: string): any {
+  return ({ opacityValue }: { opacityValue?: string | number }) => {
+    if (opacityValue !== undefined) {
+      return `rgba(var(${variableName}), ${opacityValue})`;
+    }
+    return `rgb(var(${variableName}))`;
+  };
+}
+
 const config: Config = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -10,14 +19,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        canvas: "#f8f9fc",
-        "canvas-soft": "#f1f3f9",
-        card: "#ffffff",
-        ink: "#111827",
-        "ink-soft": "#1f2937",
-        body: "#6b7280",
-        hairline: "#e5e7eb",
-        link: "#4f46e5",
+        canvas: withOpacity("--canvas"),
+        "canvas-soft": withOpacity("--canvas-soft"),
+        card: withOpacity("--card"),
+        ink: withOpacity("--ink"),
+        "ink-soft": withOpacity("--ink-soft"),
+        body: withOpacity("--body"),
+        hairline: withOpacity("--hairline"),
+        link: withOpacity("--link"),
         budget: {
           green: "#10b981",
           yellow: "#f59e0b",
@@ -25,9 +34,9 @@ const config: Config = {
         }
       },
       fontFamily: {
-        display: ["var(--font-inter)", "sans-serif"],
-        serif: ["var(--font-inter)", "sans-serif"],
-        sans: ["var(--font-inter)", "sans-serif"]
+        display: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+        serif: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"]
       }
     }
   },

@@ -14,7 +14,8 @@ import {
   Coins01Icon,
   ArrowDownLeft01Icon,
   ArrowUpRight01Icon,
-  FilterIcon
+  FilterIcon,
+  ChevronDownIcon
 } from "@hugeicons/core-free-icons";
 
 interface ExtendedTransaction extends Transaction {
@@ -109,53 +110,60 @@ export default function TransactionTable({
         {/* Month/Year Selector Form */}
         <div className="flex items-center gap-2">
           <HugeiconsIcon icon={FilterIcon} size={14} className="text-gray-400" />
-          <select
-            value={filterMonth}
-            onChange={(e) => handleFilterChange(Number(e.target.value), filterYear)}
-            className="bg-white text-ink border border-hairline p-2 px-3 rounded-2xl font-sans text-xs uppercase font-bold shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150"
-          >
-            {MONTHS.map((m) => (
-              <option key={m.value} value={m.value}>
-                {m.label}
-              </option>
-            ))}
-          </select>
+          
+          <div className="relative">
+            <select
+              value={filterMonth}
+              onChange={(e) => handleFilterChange(Number(e.target.value), filterYear)}
+              className="appearance-none bg-card text-ink border border-hairline p-2 pl-3 pr-8 rounded-2xl font-sans text-xs uppercase font-bold shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150"
+            >
+              {MONTHS.map((m) => (
+                <option key={m.value} value={m.value}>
+                  {m.label}
+                </option>
+              ))}
+            </select>
+            <HugeiconsIcon icon={ChevronDownIcon} size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-body pointer-events-none" />
+          </div>
 
-          <select
-            value={filterYear}
-            onChange={(e) => handleFilterChange(filterMonth, Number(e.target.value))}
-            className="bg-white text-ink border border-hairline p-2 px-3 rounded-2xl font-sans text-xs uppercase font-bold shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150"
-          >
-            {currentYearOptions.map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
-          </select>
+          <div className="relative">
+            <select
+              value={filterYear}
+              onChange={(e) => handleFilterChange(filterMonth, Number(e.target.value))}
+              className="appearance-none bg-card text-ink border border-hairline p-2 pl-3 pr-8 rounded-2xl font-sans text-xs uppercase font-bold shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150"
+            >
+              {currentYearOptions.map((y) => (
+                <option key={y} value={y}>
+                  {y}
+                </option>
+              ))}
+            </select>
+            <HugeiconsIcon icon={ChevronDownIcon} size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-body pointer-events-none" />
+          </div>
         </div>
       </div>
 
       {error && (
-        <div className="bg-rose-50 text-budget-red border border-rose-100 p-3.5 rounded-2xl text-xs font-sans font-semibold">
+        <div className="bg-rose-500/10 text-budget-red border border-rose-500/20 p-3.5 rounded-2xl text-xs font-sans font-semibold">
           Error: {error}
         </div>
       )}
 
       {transactions.length === 0 ? (
-        <div className="bg-white border border-hairline p-12 text-center rounded-3xl shadow-sm">
+        <div className="bg-card border border-hairline p-12 text-center rounded-3xl shadow-sm">
           <p className="font-sans text-xs text-body font-semibold italic">No transactions recorded for this period.</p>
         </div>
       ) : (
-        <div className="bg-white border border-hairline rounded-3xl p-3 shadow-sm divide-y divide-gray-50">
+        <div className="bg-card border border-hairline rounded-3xl p-3 shadow-sm divide-y divide-hairline">
           {transactions.map((transaction) => {
             const isIncome = transaction.type === "INCOME";
             return (
-              <div key={transaction.id} className="flex items-center justify-between py-3.5 px-2 hover:bg-gray-50/50 transition-colors duration-150">
+              <div key={transaction.id} className="flex items-center justify-between py-3.5 px-2 hover:bg-canvas-soft transition-colors duration-150">
                 <div className="flex items-center gap-3">
-                  <div className={`w-9 h-9 rounded-full flex items-center justify-center ${
+                  <div className={`w-9 h-9 rounded-full shrink-0 flex items-center justify-center ${
                     isIncome 
-                      ? "bg-emerald-100/50 text-budget-green" 
-                      : "bg-rose-100/50 text-budget-red"
+                      ? "bg-emerald-100 dark:bg-emerald-950 text-budget-green" 
+                      : "bg-rose-100 dark:bg-rose-950 text-budget-red"
                   }`}>
                     <HugeiconsIcon 
                       icon={isIncome ? ArrowDownLeft01Icon : ArrowUpRight01Icon} 
@@ -164,7 +172,7 @@ export default function TransactionTable({
                     />
                   </div>
                   <div>
-                    <span className="block font-sans text-sm font-black text-ink">
+                    <span className="block font-sans text-xs font-black text-ink">
                       {transaction.categories?.name || "Uncategorized"}
                     </span>
                     <span className="block font-sans text-[10px] text-body font-semibold">
@@ -174,7 +182,7 @@ export default function TransactionTable({
                 </div>
                 
                 <div className="flex items-center gap-4">
-                  <div className={`font-sans text-sm font-black ${
+                  <div className={`font-sans text-sm font-black whitespace-nowrap ${
                     isIncome ? "text-budget-green" : "text-budget-red"
                   }`}>
                     {isIncome ? "+" : "-"} {formatCurrency(transaction.amount)}
@@ -182,7 +190,7 @@ export default function TransactionTable({
                   <button
                     onClick={() => handleDelete(transaction.id)}
                     disabled={isPending}
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-budget-red hover:bg-rose-50/50 transition-colors disabled:opacity-50"
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-budget-red hover:bg-rose-500/10 transition-colors disabled:opacity-50"
                     title="Delete"
                   >
                     <HugeiconsIcon icon={Trash} size={14} strokeWidth={2} />

@@ -14,7 +14,7 @@ export default async function CategoriesPage() {
     <div className="min-h-screen bg-canvas flex flex-col justify-between">
       <Header />
       
-      <main className="flex-grow max-w-6xl w-full mx-auto px-6 pt-12 pb-24 sm:pb-12">
+      <main className="flex-grow max-w-6xl w-full mx-auto px-6 pt-12 pb-32 sm:pb-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           <div className="lg:col-span-1">
             <CategoryForm />
@@ -24,12 +24,6 @@ export default async function CategoriesPage() {
           </div>
         </div>
       </main>
-      
-      <footer className="border-t border-hairline py-6 px-6 text-center bg-canvas">
-        <p className="font-sans text-[10px] tracking-widest text-body uppercase">
-          Argent &copy; 2026. All rights reserved.
-        </p>
-      </footer>
     </div>
   );
 }

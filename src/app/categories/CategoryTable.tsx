@@ -34,26 +34,26 @@ export default function CategoryTable({ categories }: { categories: Category[] }
       </div>
 
       {error && (
-        <div className="bg-rose-50 text-budget-red border border-rose-100 p-3.5 rounded-2xl text-xs font-sans font-semibold">
+        <div className="bg-rose-500/10 text-budget-red border border-rose-500/20 p-3.5 rounded-2xl text-xs font-sans font-semibold">
           Error: {error}
         </div>
       )}
 
       {categories.length === 0 ? (
-        <div className="bg-white border border-hairline p-12 text-center rounded-3xl shadow-sm">
+        <div className="bg-card border border-hairline p-12 text-center rounded-3xl shadow-sm">
           <p className="font-sans text-xs text-body font-semibold italic">No categories created yet. Use the form to create one.</p>
         </div>
       ) : (
-        <div className="bg-white border border-hairline rounded-3xl p-3 shadow-sm divide-y divide-gray-50">
+        <div className="bg-card border border-hairline rounded-3xl p-3 shadow-sm divide-y divide-hairline">
           {categories.map((category) => (
-            <div key={category.id} className="flex items-center justify-between py-3.5 px-2 hover:bg-gray-50/50 transition-colors duration-150">
+            <div key={category.id} className="flex items-center justify-between py-3.5 px-2 hover:bg-canvas-soft transition-colors duration-150">
               <div className="flex items-center gap-3">
                 <span className="font-sans text-sm font-black text-ink">{category.name}</span>
                 <span
                   className={`inline-flex items-center gap-1 font-sans font-bold text-[9px] tracking-wider uppercase px-2 py-0.5 rounded-full border ${
                     category.type === "EXPENSE"
-                      ? "border-rose-100 text-budget-red bg-rose-50/30"
-                      : "border-emerald-100 text-budget-green bg-emerald-50/30"
+                      ? "border-rose-500/20 text-budget-red bg-rose-500/10"
+                      : "border-emerald-500/20 text-budget-green bg-emerald-500/10"
                   }`}
                 >
                   <HugeiconsIcon 

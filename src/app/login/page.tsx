@@ -22,7 +22,7 @@ export default function LoginPage() {
 
       {/* Main Login Card Section */}
       <main className="flex-grow flex items-center justify-center px-4 pb-16">
-        <div className="w-full max-w-md bg-white border border-hairline p-8 md:p-10 rounded-3xl shadow-lg">
+        <div className="w-full max-w-md bg-card border border-hairline p-8 md:p-10 rounded-3xl shadow-lg">
           <h2 className="font-sans font-black text-lg text-ink uppercase mb-2">
             Sign In
           </h2>
@@ -48,7 +48,7 @@ export default function LoginPage() {
                   type="email"
                   required
                   disabled={isPending}
-                  className="w-full bg-gray-50 text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:bg-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
+                  className="w-full bg-canvas-soft text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
                   placeholder="name@example.com"
                 />
               </div>
@@ -71,13 +71,13 @@ export default function LoginPage() {
                   type="password"
                   required
                   disabled={isPending}
-                  className="w-full bg-gray-50 text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:bg-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
+                  className="w-full bg-canvas-soft text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
                 />
               </div>
             </div>
 
             {state?.error && (
-              <div className="bg-rose-50 text-budget-red border border-rose-100 p-3.5 rounded-2xl text-xs font-sans font-semibold">
+              <div className="bg-rose-500/10 text-budget-red border border-rose-500/20 p-3.5 rounded-2xl text-xs font-sans font-semibold">
                 Error: {state.error}
               </div>
             )}
@@ -93,13 +93,6 @@ export default function LoginPage() {
           </form>
         </div>
       </main>
-
-      {/* Modern Footer */}
-      <footer className="border-t border-hairline py-6 px-6 text-center bg-white shadow-inner">
-        <p className="font-sans text-[10px] tracking-widest text-body uppercase">
-          Argent &copy; 2026. All rights reserved.
-        </p>
-      </footer>
     </div>
   );
 }

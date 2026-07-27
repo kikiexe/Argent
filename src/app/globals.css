@@ -3,7 +3,49 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --canvas: 255, 255, 255;
+    --canvas-soft: 248, 249, 252;
+    --card: 255, 255, 255;
+    --ink: 17, 24, 39;
+    --ink-soft: 31, 41, 55;
+    --body: 107, 114, 128;
+    --hairline: 229, 231, 235;
+    --link: 79, 70, 229;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --canvas: 0, 0, 0;
+      --canvas-soft: 10, 10, 10;
+      --card: 18, 18, 18;
+      --ink: 255, 255, 255;
+      --ink-soft: 243, 244, 246;
+      --body: 156, 163, 175;
+      --hairline: 38, 38, 38;
+      --link: 129, 140, 248;
+    }
+  }
+
   body {
     @apply bg-canvas text-ink font-sans antialiased;
   }
+}
+
+/* Fix date input styling on iOS Safari */
+input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+  min-height: 2.75rem;
+}
+
+input[type="date"]::-webkit-date-and-time-value {
+  text-align: left;
+  min-height: 1.25em;
+}
+
+input[type="date"]::-webkit-datetime-edit {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
 }

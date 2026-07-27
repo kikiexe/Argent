@@ -12,7 +12,7 @@ export default async function Header() {
   } = await supabase.auth.getUser();
 
   return (
-    <header className="border-b border-hairline py-4 px-6 bg-white shadow-sm flex flex-row items-center justify-between gap-4">
+    <header className="border-b border-hairline pt-[calc(1rem+env(safe-area-inset-top))] pb-4 px-6 bg-card shadow-sm flex flex-row items-center justify-between gap-4">
       <div className="flex flex-col items-start">
         <Link href="/" className="font-sans text-2xl font-black tracking-tight text-indigo-600 uppercase hover:opacity-80 transition-opacity">
           Argent
@@ -32,9 +32,9 @@ export default async function Header() {
         <form action={logout}>
           <button
             type="submit"
-            className="bg-gray-100 text-ink hover:bg-gray-200 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full font-sans font-bold text-[10px] sm:text-xs tracking-wider uppercase transition-colors duration-150 flex items-center gap-1.5"
+            className="bg-canvas-soft text-ink hover:bg-canvas-soft/80 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full font-sans font-bold text-[10px] sm:text-xs tracking-wider uppercase transition-colors duration-150 flex items-center gap-1.5"
           >
-            <HugeiconsIcon icon={Logout01Icon} size={12} strokeWidth={2} className="text-gray-500" />
+            <HugeiconsIcon icon={Logout01Icon} size={12} strokeWidth={2} className="text-body" />
             <span>Sign Out</span>
           </button>
         </form>
