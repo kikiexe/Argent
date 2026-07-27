@@ -2,7 +2,7 @@
   "name": "Pecune",
   "short_name": "Pecune",
   "description": "A finance tracker.",
-  "start_url": "/",
+  "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#f8f9fc",
   "theme_color": "#4f46e5",

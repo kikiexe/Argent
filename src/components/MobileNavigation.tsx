@@ -8,8 +8,9 @@ import { Home01Icon, Folder01Icon, Receipt } from "@hugeicons/core-free-icons";
 export default function MobileNavigation() {
   const pathname = usePathname();
 
-  // Hide the navigation tab bar on the login page and landing page
-  if (pathname === "/login" || pathname === "/") {
+  // Show the navigation tab bar only on authenticated app pages
+  const allowedPaths = ["/dashboard", "/categories", "/transactions"];
+  if (!pathname || !allowedPaths.includes(pathname)) {
     return null;
   }
 
