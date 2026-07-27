@@ -1,8 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import MobileNavigation from "@/components/MobileNavigation";
-
 import type { Viewport } from "next";
+import { Inter } from "next/font/google";
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap"
+});
 
 export const viewport: Viewport = {
   themeColor: [
@@ -37,7 +42,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="bg-canvas text-ink min-h-screen flex flex-col font-sans antialiased">
+      <body className={`${inter.className} bg-canvas text-ink min-h-screen flex flex-col font-sans antialiased`}>
         {children}
         <MobileNavigation />
       </body>
