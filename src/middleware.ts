@@ -5,12 +5,22 @@ export async function middleware(request: NextRequest) {
   const { supabaseResponse, user } = await updateSession(request);
   const url = new URL(request.url);
 
-  if (!user && url.pathname !== "/login") {
+  // Define route rules
+  const isAuthRequiredRoute = 
+    url.pathname.startsWith("/dashboard") ||
+    url.pathname.startsWith("/categories") ||
+    url.pathname.startsWith("/transactions");
+
+  const isGuestOnlyRoute = url.pathname === "/login";
+
+  // 1. If not logged in and requesting auth page -> redirect to /login
+  if (!user && isAuthRequiredRoute) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (user && url.pathname === "/login") {
-    return NextResponse.redirect(new URL("/", request.url));
+  // 2. If logged in and requesting guest page -> redirect to /dashboard
+  if (user && isGuestOnlyRoute) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   return supabaseResponse;
@@ -18,6 +28,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|manifest\\.json|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"
+    "/((?!_next/static|_next/image|favicon.ico|manifest\\.json|assets|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"
   ]
 };

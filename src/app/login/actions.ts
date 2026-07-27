@@ -38,5 +38,5 @@ export async function login(prevState: ActionState, formData: FormData): Promise
     };
   }
 
-  redirect("/");
+  redirect("/dashboard");
 }

@@ -8,13 +8,13 @@ import { Home01Icon, Folder01Icon, Receipt } from "@hugeicons/core-free-icons";
 export default function MobileNavigation() {
   const pathname = usePathname();
 
-  // Hide the navigation tab bar on the login page
-  if (pathname === "/login") {
+  // Hide the navigation tab bar on the login page and landing page
+  if (pathname === "/login" || pathname === "/") {
     return null;
   }
 
   const links = [
-    { href: "/", label: "Dashboard", icon: Home01Icon },
+    { href: "/dashboard", label: "Dashboard", icon: Home01Icon },
     { href: "/categories", label: "Categories", icon: Folder01Icon },
     { href: "/transactions", label: "Transactions", icon: Receipt }
   ];

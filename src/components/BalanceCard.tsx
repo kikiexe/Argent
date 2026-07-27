@@ -43,7 +43,7 @@ export default function BalanceCard({ balance, userName, userEmail, transactions
   };
 
   const navLinks = [
-    { href: "/", label: "Dashboard", icon: Home01Icon },
+    { href: "/dashboard", label: "Dashboard", icon: Home01Icon },
     { href: "/categories", label: "Categories", icon: Folder01Icon },
     { href: "/transactions", label: "Transactions", icon: Receipt }
   ];
@@ -58,7 +58,7 @@ export default function BalanceCard({ balance, userName, userEmail, transactions
         {/* Desktop Header Row (Hidden on Mobile) */}
         <div className="hidden sm:flex items-center justify-between border-b border-white/10 pb-4 mb-6">
           <div className="flex flex-col items-start">
-            <Link href="/" className="font-sans text-2xl font-black tracking-tight text-white uppercase hover:opacity-80 transition-opacity">
+            <Link href="/dashboard" className="font-sans text-2xl font-black tracking-tight text-white uppercase hover:opacity-80 transition-opacity">
               Pecune
             </Link>
             <span className="font-sans text-[8px] font-bold tracking-[0.25em] text-indigo-200 uppercase">
