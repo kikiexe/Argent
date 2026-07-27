@@ -287,16 +287,17 @@ export default function LandingPage() {
             ))}
           </div>
 
-          <div className="bg-white border border-[#e0e0e0] p-8 max-w-4xl grid md:grid-cols-2 gap-8 items-center">
+          <div className="bg-white border border-[#e0e0e0] p-8 max-w-3xl space-y-8">
             <ol className="space-y-4">
               {(platform === "android"
                 ? [
                     "Buka halaman login Pecune di Chrome, lalu ketuk menu tiga titik di pojok kanan atas",
-                    "Pilih \"Install app\" atau \"Tambahkan ke Layar Utama\", lalu konfirmasi"
+                    "Pilih \"Install dan buat pintasan\"",
+                    "Lalu konfirmasi"
                   ]
                 : [
                     "Buka halaman login Pecune di Safari, lalu ketuk ikon Share di menu bar bawah",
-                    "Gulir ke bawah, pilih \"Add to Home Screen\", lalu ketuk Tambah"
+                    "Gulir ke bawah, pilih \"Tambahkan ke Layar Utama\", lalu ketuk Tambah"
                   ]
               ).map((step, i) => (
                 <li key={i} className="flex gap-3 text-sm leading-relaxed">
@@ -306,26 +307,26 @@ export default function LandingPage() {
               ))}
             </ol>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-6 border-t border-[#e0e0e0]">
               {platform === "android" ? (
                 <>
-                  <div className="flex flex-col items-center">
-                    <span className="block font-label text-[9px] font-bold text-[#757575] mb-2 uppercase tracking-wider">Langkah 1</span>
+                  <div className="space-y-2">
+                    <span className="block font-label text-[10px] font-bold text-[#757575] uppercase tracking-wider">Langkah 1</span>
                     <img src={IMAGES.step1Android} alt="Android Step 1" className="w-full h-auto object-contain" />
                   </div>
-                  <div className="flex flex-col items-center">
-                    <span className="block font-label text-[9px] font-bold text-[#757575] mb-2 uppercase tracking-wider">Langkah 2</span>
+                  <div className="space-y-2">
+                    <span className="block font-label text-[10px] font-bold text-[#757575] uppercase tracking-wider">Langkah 2</span>
                     <img src={IMAGES.step2Android} alt="Android Step 2" className="w-full h-auto object-contain" />
                   </div>
                 </>
               ) : (
                 <>
-                  <div className="flex flex-col items-center">
-                    <span className="block font-label text-[9px] font-bold text-[#757575] mb-2 uppercase tracking-wider">Langkah 1</span>
+                  <div className="space-y-2">
+                    <span className="block font-label text-[10px] font-bold text-[#757575] uppercase tracking-wider">Langkah 1</span>
                     <img src={IMAGES.step1Ios} alt="iOS Step 1" className="w-full h-auto object-contain" />
                   </div>
-                  <div className="flex flex-col items-center">
-                    <span className="block font-label text-[9px] font-bold text-[#757575] mb-2 uppercase tracking-wider">Langkah 2</span>
+                  <div className="space-y-2">
+                    <span className="block font-label text-[10px] font-bold text-[#757575] uppercase tracking-wider">Langkah 2</span>
                     <img src={IMAGES.step2Ios} alt="iOS Step 2" className="w-full h-auto object-contain" />
                   </div>
                 </>
