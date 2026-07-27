@@ -34,6 +34,7 @@ export default async function Header() {
             type="submit"
             className="w-9 h-9 sm:w-10 sm:h-10 bg-canvas-soft hover:bg-canvas-soft/80 rounded-full flex items-center justify-center text-ink transition-all shadow-sm"
             title="Sign Out"
+            aria-label="Sign Out"
           >
             <HugeiconsIcon icon={Logout01Icon} size={16} strokeWidth={2} className="text-body" />
           </button>

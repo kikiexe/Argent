@@ -34,9 +34,9 @@ const config: Config = {
         }
       },
       fontFamily: {
-        display: ["Inter", "system-ui", "-apple-system", "sans-serif"],
-        serif: ["Inter", "system-ui", "-apple-system", "sans-serif"],
-        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"]
+        display: ["var(--font-sans)", "system-ui", "-apple-system", "sans-serif"],
+        serif: ["var(--font-sans)", "system-ui", "-apple-system", "sans-serif"],
+        sans: ["var(--font-sans)", "system-ui", "-apple-system", "sans-serif"]
       }
     }
   },

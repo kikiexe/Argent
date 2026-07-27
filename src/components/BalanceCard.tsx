@@ -126,7 +126,7 @@ export default function BalanceCard({ balance, userName, userEmail, transactions
             <div className="space-y-0.5">
               {view === "balance" ? (
                 <>
-                  <span className="block font-sans text-[10px] text-white/60 font-semibold uppercase tracking-wider">
+                  <span className="block font-sans text-[10px] text-indigo-100 font-semibold uppercase tracking-wider">
                     Hi!
                   </span>
                   <h2 className="font-sans text-base font-bold text-white capitalize leading-none">
@@ -135,7 +135,7 @@ export default function BalanceCard({ balance, userName, userEmail, transactions
                 </>
               ) : (
                 <>
-                  <span className="block font-sans text-[10px] text-white/60 font-semibold uppercase tracking-wider">
+                  <span className="block font-sans text-[10px] text-indigo-100 font-semibold uppercase tracking-wider">
                     Overview
                   </span>
                   <h2 className="font-sans text-base font-bold text-white capitalize leading-none">
@@ -152,13 +152,19 @@ export default function BalanceCard({ balance, userName, userEmail, transactions
               onClick={() => setView(view === "balance" ? "statistics" : "balance")}
               className="w-10 h-10 bg-white/10 hover:bg-white/15 border border-white/10 rounded-full flex items-center justify-center text-white transition-all shadow-sm"
               title={view === "balance" ? "View Statistics" : "View Balance"}
+              aria-label={view === "balance" ? "View statistics" : "View balance"}
             >
               <HugeiconsIcon icon={view === "balance" ? Analytics01Icon : Wallet01Icon} size={18} strokeWidth={1.8} />
             </button>
             
             {/* Sign Out Shortcut */}
             <form action={logout}>
-              <button type="submit" className="w-10 h-10 bg-white/10 hover:bg-white/15 border border-white/10 rounded-full flex items-center justify-center text-white transition-all shadow-sm" title="Sign Out">
+              <button 
+                type="submit" 
+                className="w-10 h-10 bg-white/10 hover:bg-white/15 border border-white/10 rounded-full flex items-center justify-center text-white transition-all shadow-sm" 
+                title="Sign Out"
+                aria-label="Sign Out"
+              >
                 <HugeiconsIcon icon={Logout01Icon} size={16} strokeWidth={2} />
               </button>
             </form>
@@ -171,12 +177,13 @@ export default function BalanceCard({ balance, userName, userEmail, transactions
             {/* Balance details */}
             <div className="space-y-1 mb-5">
               <div className="flex items-center gap-2">
-                <span className="font-sans text-[10px] font-bold tracking-widest text-white/70 uppercase">
+                <span className="font-sans text-[10px] font-bold tracking-widest text-white/90 uppercase">
                   Account Balance
                 </span>
                 <button
                   onClick={() => setIsVisible(!isVisible)}
-                  className="text-white/60 hover:text-white transition-colors"
+                  className="text-white/80 hover:text-white transition-colors"
+                  aria-label={isVisible ? "Hide balance" : "Show balance"}
                 >
                   <HugeiconsIcon icon={isVisible ? EyeIcon : EyeOffIcon} size={15} strokeWidth={2} />
                 </button>
@@ -186,7 +193,7 @@ export default function BalanceCard({ balance, userName, userEmail, transactions
                 <h3 className="font-sans text-3xl font-extrabold tracking-tight transition-all duration-300">
                   {isVisible ? formatCurrency(balance) : "••••••••••••"}
                 </h3>
-                <p className="font-sans text-[8px] tracking-[0.25em] text-white/40 font-semibold uppercase">
+                <p className="font-sans text-[8px] tracking-[0.25em] text-indigo-100 font-semibold uppercase">
                   Personal Ledger Active
                 </p>
               </div>
