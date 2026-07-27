@@ -15,6 +15,11 @@ export const metadata: Metadata = {
   title: "Argent",
   description: "A finance tracker.",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/192x192.png",
+    shortcut: "/192x192.png",
+    apple: "/192x192.png"
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
