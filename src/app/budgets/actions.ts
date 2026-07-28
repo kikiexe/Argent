@@ -56,13 +56,15 @@ export async function setMonthlyBudget(
       );
 
     if (upsertError) {
-      return { error: upsertError.message };
+      console.error("Failed to upsert budget:", upsertError);
+      return { error: "Gagal menyimpan anggaran bulanan. Silakan coba lagi." };
     }
 
     revalidatePath("/");
     return { success: true };
   } catch (err: any) {
-    return { error: err.message || "An unexpected error occurred." };
+    console.error("Unexpected error in setMonthlyBudget:", err);
+    return { error: "Terjadi kesalahan yang tidak terduga." };
   }
 }
 

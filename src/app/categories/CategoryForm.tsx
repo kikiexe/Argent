@@ -30,7 +30,7 @@ export default function CategoryForm() {
               name="name"
               type="text"
               required
-              maxLength={10}
+              maxLength={50}
               disabled={isPending}
               placeholder="e.g. Groceries"
               className="w-full bg-canvas-soft text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
