@@ -154,7 +154,7 @@ export default function LandingPage() {
               Setiap tambal ban, kopi susu, dan gaji mu tercatat rapi
             </h1>
             <p className="text-base text-[#757575] leading-relaxed max-w-md">
-              Pecune adalah ledger pribadi untuk lima orang yang percaya sama satu prinsip:
+              Pecune adalah ledger pribadi yang percaya pada satu prinsip:
               kalau tidak dicatat, uang itu terasa hilang begitu saja padahal jelas ke mana perginya
             </p>
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
