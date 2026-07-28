@@ -23,8 +23,24 @@ export default async function HomePage() {
     data: { user }
   } = await supabase.auth.getUser();
 
-  /* Fetch all user transactions to compute live balance and display recent items */
-  const { data: transactions } = await supabase
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
+
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
+
+  /* Call optimized RPC function to aggregate balance and current month's expenses in DB */
+  const { data: statsData } = (await supabase
+    .rpc("get_user_stats")
+    .maybeSingle()) as unknown as { data: { lifetime_balance: number; current_month_expenses: number } | null };
+
+  const balance = statsData?.lifetime_balance ? Number(statsData.lifetime_balance) : 0;
+  const currentMonthExpenses = statsData?.current_month_expenses ? Number(statsData.current_month_expenses) : 0;
+
+  /* Fetch 5 most recent transactions for display */
+  const { data: recentTransactionsData } = await supabase
     .from("transactions")
     .select(`
       *,
@@ -33,50 +49,43 @@ export default async function HomePage() {
         type
       )
     `)
-    .eq("user_id", user?.id)
+    .eq("user_id", user.id)
+    .order("date", { ascending: false })
+    .limit(5);
+
+  const recentTransactions = recentTransactionsData || [];
+
+  /* Fetch transactions for the chart (limited to the last 12 calendar months) */
+  const chartStartDate = new Date(currentYear, now.getMonth() - 11, 1);
+  const chartStartDateString = chartStartDate.toISOString().split("T")[0];
+
+  const { data: chartTransactionsData } = await supabase
+    .from("transactions")
+    .select(`
+      *,
+      categories (
+        name,
+        type
+      )
+    `)
+    .eq("user_id", user.id)
+    .gte("date", chartStartDateString)
     .order("date", { ascending: false });
 
-  const txList = transactions || [];
-  
-  /* Calculate balance */
-  const totalIncome = txList
-    .filter((t) => t.type === "INCOME")
-    .reduce((sum, t) => sum + Number(t.amount), 0);
-  
-  const totalExpense = txList
-    .filter((t) => t.type === "EXPENSE")
-    .reduce((sum, t) => sum + Number(t.amount), 0);
-  
-  const balance = totalIncome - totalExpense;
+  const chartTransactions = chartTransactionsData || [];
 
   /* Fetch current month budget limit */
-  const now = new Date();
-  const currentMonth = now.getMonth() + 1;
-  const currentYear = now.getFullYear();
-
   const { data: budgetData } = await supabase
     .from("monthly_budgets")
     .select("total_limit")
-    .eq("user_id", user?.id)
+    .eq("user_id", user.id)
     .eq("month", currentMonth)
     .eq("year", currentYear)
     .maybeSingle();
 
   const totalLimit = budgetData?.total_limit ? Number(budgetData.total_limit) : 0;
 
-  /* Calculate current month expenses */
-  const currentMonthExpenses = txList
-    .filter((t) => {
-      if (t.type !== "EXPENSE") return false;
-      const tDate = new Date(t.date);
-      return tDate.getMonth() + 1 === currentMonth && tDate.getFullYear() === currentYear;
-    })
-    .reduce((sum, t) => sum + Number(t.amount), 0);
-
-  /* Get 5 most recent transactions */
-  const recentTransactions = txList.slice(0, 5);
-
-  const userName = user?.user_metadata?.full_name || user?.user_metadata?.name || (user?.email 
+  const userName = user.user_metadata?.full_name || user.user_metadata?.name || (user.email 
     ? user.email.split("@")[0].replace(/[._]/g, " ")
     : "Guest");
 
@@ -101,7 +110,7 @@ export default async function HomePage() {
     <div className="min-h-screen bg-canvas flex flex-col justify-between">
       <div>
         {/* Unified Top Curved Header with Balance Card (Full-Bleed) */}
-        <BalanceCard balance={balance} userName={userName} userEmail={user?.email || ""} transactions={txList} />
+        <BalanceCard balance={balance} userName={userName} userEmail={user.email || ""} transactions={chartTransactions} />
 
         <main className="max-w-4xl w-full mx-auto px-6 pt-10 pb-32 sm:pb-12 space-y-8">
 

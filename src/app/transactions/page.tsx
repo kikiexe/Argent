@@ -36,6 +36,7 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
   const { data: categories } = await supabase
     .from("categories")
     .select("*")
+    .eq("user_id", user.id)
     .order("name", { ascending: true });
 
   /* Fetch transactions for current month and year */

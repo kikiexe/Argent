@@ -3,10 +3,6 @@
 /* Enable UUID generator extension if not already enabled */
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-/* Drop existing tables if they exist */
-DROP TABLE IF EXISTS transactions;
-DROP TABLE IF EXISTS monthly_budgets;
-DROP TABLE IF EXISTS categories;
 
 /* Table: categories */
 CREATE TABLE categories (
