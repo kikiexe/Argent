@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Home01Icon, Folder01Icon, Receipt } from "@hugeicons/core-free-icons";
+import { Home01Icon, Folder01Icon, Receipt, UserIcon } from "@hugeicons/core-free-icons";
 
 export default function Navigation() {
   const pathname = usePathname();
@@ -11,7 +11,8 @@ export default function Navigation() {
   const links = [
     { href: "/dashboard", label: "Dashboard", icon: Home01Icon },
     { href: "/categories", label: "Categories", icon: Folder01Icon },
-    { href: "/transactions", label: "Transactions", icon: Receipt }
+    { href: "/transactions", label: "Transactions", icon: Receipt },
+    { href: "/profile", label: "Profile", icon: UserIcon }
   ];
 
   return (

@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Home01Icon, Folder01Icon, Receipt } from "@hugeicons/core-free-icons";
+import { Home01Icon, Folder01Icon, Receipt, UserIcon } from "@hugeicons/core-free-icons";
 
 export default function MobileNavigation() {
   const pathname = usePathname();
 
   // Show the navigation tab bar only on authenticated app pages
-  const allowedPaths = ["/dashboard", "/categories", "/transactions"];
+  const allowedPaths = ["/dashboard", "/categories", "/transactions", "/profile"];
   if (!pathname || !allowedPaths.includes(pathname)) {
     return null;
   }
@@ -17,7 +17,8 @@ export default function MobileNavigation() {
   const links = [
     { href: "/dashboard", label: "Dashboard", icon: Home01Icon },
     { href: "/categories", label: "Categories", icon: Folder01Icon },
-    { href: "/transactions", label: "Transactions", icon: Receipt }
+    { href: "/transactions", label: "Transactions", icon: Receipt },
+    { href: "/profile", label: "Profile", icon: UserIcon }
   ];
 
   return (
