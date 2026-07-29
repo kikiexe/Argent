@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState, useState, useEffect } from "react";
+import { useActionState, useState, useEffect, useTransition } from "react";
 import { createTransaction } from "./actions";
+import { extractTransactionFromVoice } from "./ai-actions";
 import { Category } from "@/types/database";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { 
@@ -12,34 +13,201 @@ import {
   Coins01Icon, 
   Calendar01Icon, 
   NotebookIcon, 
-  PlusSignIcon 
+  PlusSignIcon,
+  Mic01Icon,
+  MicOff01Icon
 } from "@hugeicons/core-free-icons";
 
 export default function TransactionForm({ categories }: { categories: Category[] }) {
   const [state, formAction, isPending] = useActionState(createTransaction, null);
   const [selectedType, setSelectedType] = useState<"EXPENSE" | "INCOME">("EXPENSE");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  
+  // Controlled form states
+  const [amount, setAmount] = useState<string>("");
+  // Get today's date in YYYY-MM-DD local format
+  const todayStr = new Date().toLocaleDateString("sv-SE");
+  const [date, setDate] = useState<string>(todayStr);
+  const [note, setNote] = useState<string>("");
+
+  // Voice Input states
+  const [isSpeechSupported, setIsSpeechSupported] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isProcessing, startProcessing] = useTransition();
+  const [voiceError, setVoiceError] = useState("");
+  const [recognitionInstance, setRecognitionInstance] = useState<any>(null);
 
   const filteredCategories = categories.filter((c) => c.type === selectedType);
 
-  /* Reset category selection when transaction type changes */
+  // Check speech recognition support
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        setIsSpeechSupported(true);
+      }
+    }
+  }, []);
+
+  // Reset category selection when transaction type changes
   useEffect(() => {
     if (filteredCategories.length > 0) {
-      setSelectedCategory(filteredCategories[0].id);
+      // If previous category is still valid under new type, keep it. Otherwise reset to first one.
+      const currentValid = filteredCategories.find(c => c.id === selectedCategory);
+      if (!currentValid) {
+        setSelectedCategory(filteredCategories[0].id);
+      }
     } else {
       setSelectedCategory("");
     }
-  }, [selectedType, categories]);
+  }, [selectedType, categories, selectedCategory, filteredCategories]);
 
-  /* Get today's date in YYYY-MM-DD local format */
-  const todayStr = new Date().toLocaleDateString("sv-SE");
+  // Reset controlled inputs when transaction is successfully created
+  useEffect(() => {
+    if (state?.success) {
+      setAmount("");
+      setNote("");
+      setDate(todayStr);
+    }
+  }, [state, todayStr]);
+
+  // Voice input handling
+  const toggleListening = () => {
+    if (isListening) {
+      if (recognitionInstance) {
+        recognitionInstance.stop();
+      }
+      setIsListening(false);
+      return;
+    }
+
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "id-ID";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      setVoiceError("");
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error("Speech recognition error:", event.error);
+      if (event.error === "not-allowed") {
+        setVoiceError("Izin mikrofon ditolak browser.");
+      } else {
+        setVoiceError("Gagal mengenali suara. Silakan coba lagi.");
+      }
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognition.onresult = async (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setIsListening(false);
+      
+      startProcessing(async () => {
+        try {
+          const result = await extractTransactionFromVoice(transcript);
+          if (result.success && result.data) {
+            const { amount: extractedAmt, date: extractedDate, note: extractedNote, category_id, type } = result.data;
+            
+            // Set transaction type first to update filtered categories
+            if (type) {
+              setSelectedType(type);
+            }
+            if (extractedAmt) {
+              setAmount(extractedAmt.toString());
+            }
+            if (extractedDate) {
+              setDate(extractedDate);
+            }
+            if (extractedNote) {
+              setNote(extractedNote);
+            }
+            if (category_id) {
+              setSelectedCategory(category_id);
+            }
+          } else {
+            setVoiceError(result.error || "Gagal mengolah teks transaksi.");
+          }
+        } catch (err) {
+          console.error("Voice processing server action failed:", err);
+          setVoiceError("Gagal memproses data suara ke server.");
+        }
+      });
+    };
+
+    setRecognitionInstance(recognition);
+    recognition.start();
+  };
 
   return (
-    <div className="bg-card p-6 rounded-3xl border border-hairline shadow-sm">
-      <h3 className="font-sans font-black text-sm text-ink uppercase mb-6 flex items-center gap-1.5">
-        <HugeiconsIcon icon={Receipt} size={14} strokeWidth={2.2} className="text-indigo-600" />
-        <span>Record Transaction</span>
+    <div className="bg-card p-6 rounded-3xl border border-hairline shadow-sm space-y-6">
+      <h3 className="font-sans font-black text-sm text-ink uppercase flex items-center gap-1.5 border-b border-hairline pb-4 justify-between">
+        <span className="flex items-center gap-1.5">
+          <HugeiconsIcon icon={Receipt} size={14} strokeWidth={2.2} className="text-indigo-600" />
+          <span>Record Transaction</span>
+        </span>
       </h3>
+
+      {/* Voice Assistant Widget */}
+      {isSpeechSupported && (
+        <div className="p-4 rounded-2xl bg-canvas-soft/80 border border-hairline flex flex-col gap-2.5 transition-all duration-150">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className={`w-2 h-2 rounded-full ${
+                isListening 
+                  ? "bg-rose-500 animate-ping" 
+                  : isProcessing 
+                  ? "bg-indigo-500 animate-pulse" 
+                  : "bg-indigo-600"
+              }`}></span>
+              <span className="font-sans text-[10px] font-bold tracking-widest text-body uppercase">
+                {isListening ? "Mendengarkan..." : isProcessing ? "Menganalisis Suara..." : "Input Suara Instan"}
+              </span>
+            </div>
+            
+            <button
+              type="button"
+              disabled={isProcessing || isPending}
+              onClick={toggleListening}
+              className={`w-9 h-9 rounded-xl flex items-center justify-center border transition-all duration-150 shadow-sm disabled:opacity-50 ${
+                isListening
+                  ? "bg-rose-500 text-white border-rose-500 scale-105 shadow-rose-500/20"
+                  : "bg-card text-indigo-600 border-hairline hover:border-indigo-500/30 hover:text-indigo-700"
+              }`}
+              title={isListening ? "Hentikan perekaman" : "Mulai merekam suara"}
+            >
+              <HugeiconsIcon 
+                icon={isListening ? MicOff01Icon : Mic01Icon} 
+                size={16} 
+                strokeWidth={2.2} 
+              />
+            </button>
+          </div>
+
+          {voiceError && (
+            <span className="text-[10px] font-sans font-bold text-budget-red leading-normal">
+              Info: {voiceError}
+            </span>
+          )}
+          
+          <p className="text-[10px] text-body leading-relaxed font-sans">
+            {isListening 
+              ? "Bicaralah sekarang secara natural (contoh: 'beli nasi padang dua puluh ribu tadi siang')" 
+              : isProcessing 
+              ? "Gemini AI sedang mengekstrak detail transaksi Anda..." 
+              : "Tekan mikrofon untuk mengisi form otomatis lewat ucapan bahasa Indonesia."}
+          </p>
+        </div>
+      )}
 
       <form action={formAction} className="space-y-6">
         <div>
@@ -126,6 +294,8 @@ export default function TransactionForm({ categories }: { categories: Category[]
               required
               disabled={isPending}
               placeholder="0.00"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
               className="w-full bg-canvas-soft text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
             />
           </div>
@@ -145,7 +315,8 @@ export default function TransactionForm({ categories }: { categories: Category[]
               type="date"
               required
               disabled={isPending}
-              defaultValue={todayStr}
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
               className="w-full bg-canvas-soft text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50 appearance-none"
             />
           </div>
@@ -166,6 +337,8 @@ export default function TransactionForm({ categories }: { categories: Category[]
               maxLength={50}
               disabled={isPending}
               placeholder="e.g. Weekly groceries"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
               className="w-full bg-canvas-soft text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
             />
           </div>
