@@ -1,5 +1,7 @@
 import BalanceCard from "@/components/BalanceCard";
 import BudgetSection from "@/components/BudgetSection";
+import CategoryBudgetBreakdown from "@/components/CategoryBudgetBreakdown";
+import { Category, CategoryBudgetUsage } from "@/types/database";
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -85,6 +87,58 @@ export default async function HomePage() {
 
   const totalLimit = budgetData?.total_limit ? Number(budgetData.total_limit) : 0;
 
+  /* First, check if budgets exist for current month to avoid redundant write operations */
+  let initError = null;
+  const { count, error: countError } = await supabase
+    .from("category_budgets")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .eq("month", currentMonth)
+    .eq("year", currentYear);
+
+  if (countError) {
+    console.error("Failed to count category budgets:", countError);
+  }
+
+  if (count === 0) {
+    /* Carry over last month's category budgets if none exist for current month */
+    const { error: errorRpc } = await supabase.rpc("initialize_category_budgets", {
+      target_month: currentMonth,
+      target_year: currentYear
+    });
+    if (errorRpc) {
+      console.error("Failed to initialize category budgets:", errorRpc);
+      initError = errorRpc;
+    }
+  }
+
+  /* Fetch current month category budget usage */
+  const { data: categoryBudgetsData, error: usageError } = await supabase
+    .rpc("get_category_budget_usage", {
+      target_month: currentMonth,
+      target_year: currentYear
+    });
+
+  if (usageError) {
+    console.error("Failed to fetch category budgets usage:", usageError);
+  }
+  const categoryBudgets = (categoryBudgetsData || []) as unknown as CategoryBudgetUsage[];
+
+  /* Fetch user's EXPENSE categories for dropdown selection */
+  const { data: expenseCategoriesData, error: catsError } = await supabase
+    .from("categories")
+    .select("*")
+    .eq("user_id", user.id)
+    .eq("type", "EXPENSE")
+    .order("name", { ascending: true });
+
+  if (catsError) {
+    console.error("Failed to fetch expense categories:", catsError);
+  }
+  const expenseCategories = (expenseCategoriesData || []) as unknown as Category[];
+
+  const hasFetchError = !!(countError || initError || usageError || catsError);
+
   const userName = user.user_metadata?.full_name || user.user_metadata?.name || (user.email 
     ? user.email.split("@")[0].replace(/[._]/g, " ")
     : "Guest");
@@ -120,6 +174,16 @@ export default async function HomePage() {
             year={currentYear}
             totalLimit={totalLimit}
             totalExpense={currentMonthExpenses}
+          />
+
+          {/* Category Budget Breakdown */}
+          <CategoryBudgetBreakdown
+            month={currentMonth}
+            year={currentYear}
+            budgets={categoryBudgets}
+            expenseCategories={expenseCategories}
+            totalLimit={totalLimit}
+            hasError={hasFetchError}
           />
 
           {/* Recent Transactions List */}
