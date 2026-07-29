@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState, useEffect, useTransition } from "react";
+import { useActionState, useState, useEffect, useTransition, useRef } from "react";
 import { createTransaction } from "./actions";
 import { extractTransactionFromVoice } from "./ai-actions";
 import { Category } from "@/types/database";
@@ -20,13 +20,17 @@ import {
 
 export default function TransactionForm({ categories }: { categories: Category[] }) {
   const [state, formAction, isPending] = useActionState(createTransaction, null);
+  // Get today's date in YYYY-MM-DD local format once on mount
+  const [todayStr] = useState(() => new Date().toLocaleDateString("sv-SE"));
+
   const [selectedType, setSelectedType] = useState<"EXPENSE" | "INCOME">("EXPENSE");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>(() => {
+    const filtered = categories.filter((c) => c.type === "EXPENSE");
+    return filtered.length > 0 ? filtered[0].id : "";
+  });
   
   // Controlled form states
   const [amount, setAmount] = useState<string>("");
-  // Get today's date in YYYY-MM-DD local format
-  const todayStr = new Date().toLocaleDateString("sv-SE");
   const [date, setDate] = useState<string>(todayStr);
   const [note, setNote] = useState<string>("");
 
@@ -35,7 +39,7 @@ export default function TransactionForm({ categories }: { categories: Category[]
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, startProcessing] = useTransition();
   const [voiceError, setVoiceError] = useState("");
-  const [recognitionInstance, setRecognitionInstance] = useState<any>(null);
+  const recognitionRef = useRef<any>(null);
 
   const filteredCategories = categories.filter((c) => c.type === selectedType);
 
@@ -49,18 +53,15 @@ export default function TransactionForm({ categories }: { categories: Category[]
     }
   }, []);
 
-  // Reset category selection when transaction type changes
-  useEffect(() => {
-    if (filteredCategories.length > 0) {
-      // If previous category is still valid under new type, keep it. Otherwise reset to first one.
-      const currentValid = filteredCategories.find(c => c.id === selectedCategory);
-      if (!currentValid) {
-        setSelectedCategory(filteredCategories[0].id);
-      }
+  const handleTypeChange = (type: "EXPENSE" | "INCOME") => {
+    setSelectedType(type);
+    const filtered = categories.filter((c) => c.type === type);
+    if (filtered.length > 0) {
+      setSelectedCategory(filtered[0].id);
     } else {
       setSelectedCategory("");
     }
-  }, [selectedType, categories, selectedCategory, filteredCategories]);
+  };
 
   // Reset controlled inputs when transaction is successfully created
   useEffect(() => {
@@ -74,8 +75,8 @@ export default function TransactionForm({ categories }: { categories: Category[]
   // Voice input handling
   const toggleListening = () => {
     if (isListening) {
-      if (recognitionInstance) {
-        recognitionInstance.stop();
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
       }
       setIsListening(false);
       return;
@@ -118,7 +119,8 @@ export default function TransactionForm({ categories }: { categories: Category[]
           if (result.success && result.data) {
             const { amount: extractedAmt, date: extractedDate, note: extractedNote, category_id, type } = result.data;
             
-            // Set transaction type first to update filtered categories
+            // Set transaction type and category synchronously
+            const targetType = type || selectedType;
             if (type) {
               setSelectedType(type);
             }
@@ -133,6 +135,13 @@ export default function TransactionForm({ categories }: { categories: Category[]
             }
             if (category_id) {
               setSelectedCategory(category_id);
+            } else {
+              const filtered = categories.filter((c) => c.type === targetType);
+              if (filtered.length > 0) {
+                setSelectedCategory(filtered[0].id);
+              } else {
+                setSelectedCategory("");
+              }
             }
           } else {
             setVoiceError(result.error || "Gagal mengolah teks transaksi.");
@@ -144,7 +153,7 @@ export default function TransactionForm({ categories }: { categories: Category[]
       });
     };
 
-    setRecognitionInstance(recognition);
+    recognitionRef.current = recognition;
     recognition.start();
   };
 
@@ -203,7 +212,7 @@ export default function TransactionForm({ categories }: { categories: Category[]
             {isListening 
               ? "Bicaralah sekarang secara natural (contoh: 'beli nasi padang dua puluh ribu tadi siang')" 
               : isProcessing 
-              ? "Gemini AI sedang mengekstrak detail transaksi Anda..." 
+              ? "Sistem AI sedang menganalisis detail transaksi Anda..." 
               : "Tekan mikrofon untuk mengisi form otomatis lewat ucapan bahasa Indonesia."}
           </p>
         </div>
@@ -218,7 +227,7 @@ export default function TransactionForm({ categories }: { categories: Category[]
             <button
               type="button"
               disabled={isPending}
-              onClick={() => setSelectedType("EXPENSE")}
+              onClick={() => handleTypeChange("EXPENSE")}
               className={`p-3 rounded-2xl font-sans text-xs font-bold tracking-wider uppercase border transition-all duration-150 flex items-center justify-center gap-1.5 ${
                 selectedType === "EXPENSE"
                   ? "bg-rose-500/10 text-budget-red border-rose-500/20"
@@ -231,7 +240,7 @@ export default function TransactionForm({ categories }: { categories: Category[]
             <button
               type="button"
               disabled={isPending}
-              onClick={() => setSelectedType("INCOME")}
+              onClick={() => handleTypeChange("INCOME")}
               className={`p-3 rounded-2xl font-sans text-xs font-bold tracking-wider uppercase border transition-all duration-150 flex items-center justify-center gap-1.5 ${
                 selectedType === "INCOME"
                   ? "bg-emerald-500/10 text-budget-green border-emerald-500/20"

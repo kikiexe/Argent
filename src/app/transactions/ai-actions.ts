@@ -73,20 +73,7 @@ export async function extractTransactionFromVoice(text: string): Promise<Extract
     }
   } catch (dbErr) {
     console.error("Rate limiting DB error:", dbErr);
-    // Fallback if rate limit table check fails, allow with warning to log
-  }
-
-  // Log usage to database
-  try {
-    const { error: logErr } = await supabase
-      .from("api_usage_log")
-      .insert({
-        user_id: user.id,
-        feature: "voice_extract"
-      });
-    if (logErr) throw logErr;
-  } catch (insertErr) {
-    console.error("Failed to insert api usage log:", insertErr);
+    return { success: false, error: "Gagal memeriksa kuota penggunaan Anda. Silakan coba beberapa saat lagi." };
   }
 
   // 3. Fetch active categories to provide as context
@@ -140,11 +127,12 @@ Input text: "${trimmedText}"
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${geminiApiKey}`,
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent",
       {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "x-goog-api-key": geminiApiKey
         },
         body: JSON.stringify({
           contents: [
@@ -184,6 +172,19 @@ Input text: "${trimmedText}"
     if (!validated.success) {
       console.error("Zod validation failed on AI output:", validated.error);
       return { success: false, error: "Respons kecerdasan buatan tidak sesuai format." };
+    }
+
+    // Log usage to database after successful validation
+    try {
+      const { error: logErr } = await supabase
+        .from("api_usage_log")
+        .insert({
+          user_id: user.id,
+          feature: "voice_extract"
+        });
+      if (logErr) throw logErr;
+    } catch (insertErr) {
+      console.error("Failed to insert api usage log:", insertErr);
     }
 
     return {
