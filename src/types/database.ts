@@ -23,3 +23,20 @@ export interface MonthlyBudget {
   year: number;
   total_limit: number;
 }
+
+export interface CategoryBudget {
+  id: string;
+  user_id: string;
+  category_id: string;
+  month: number;
+  year: number;
+  limit_amount: number;
+}
+
+export interface CategoryBudgetUsage {
+  category_id: string;
+  category_name: string;
+  limit_amount: number;
+  spent_amount: number;
+}
+
