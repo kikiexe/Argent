@@ -75,6 +75,12 @@ const categoryBudgetSchema = z.object({
   limit_amount: z.number().nonnegative({ message: "Limit harus berupa angka non-negatif." })
 });
 
+const deleteCategoryBudgetSchema = z.object({
+  category_id: z.string().uuid({ message: "ID Kategori tidak valid." }),
+  month: z.number().int().min(1).max(12),
+  year: z.number().int().min(2000)
+});
+
 export async function setCategoryBudget(
   prevState: any,
   formData: FormData
@@ -111,16 +117,13 @@ export async function setCategoryBudget(
     // Verify category belongs to user and is of type EXPENSE
     const { data: category, error: catError } = await supabase
       .from("categories")
-      .select("type, user_id")
+      .select("type")
       .eq("id", category_id)
+      .eq("user_id", user.id)
       .maybeSingle();
 
     if (catError || !category) {
-      return { error: "Kategori tidak ditemukan." };
-    }
-
-    if (category.user_id !== user.id) {
-      return { error: "Akses ditolak." };
+      return { error: "Kategori tidak ditemukan atau bukan milik Anda." };
     }
 
     if (category.type !== "EXPENSE") {
@@ -171,13 +174,25 @@ export async function deleteCategoryBudget(
       return { error: "Authentication required." };
     }
 
+    const result = deleteCategoryBudgetSchema.safeParse({
+      category_id: categoryId,
+      month,
+      year
+    });
+
+    if (!result.success) {
+      return { error: result.error.errors[0].message || "Parameter input tidak valid." };
+    }
+
+    const { category_id, month: validatedMonth, year: validatedYear } = result.data;
+
     const { error: deleteError } = await supabase
       .from("category_budgets")
       .delete()
       .eq("user_id", user.id)
-      .eq("category_id", categoryId)
-      .eq("month", month)
-      .eq("year", year);
+      .eq("category_id", category_id)
+      .eq("month", validatedMonth)
+      .eq("year", validatedYear);
 
     if (deleteError) {
       console.error("Failed to delete category budget:", deleteError);
