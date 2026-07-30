@@ -29,8 +29,8 @@ export async function extractTransactionFromVoice(text: string): Promise<Extract
     return { success: false, error: "Teks input kosong." };
   }
 
-  if (trimmedText.length > 500) {
-    return { success: false, error: "Teks input terlalu panjang (maksimal 500 karakter)." };
+  if (trimmedText.length > 200) {
+    return { success: false, error: "Teks input terlalu panjang (maksimal 200 karakter)." };
   }
 
   // 1. Authenticate user
@@ -108,6 +108,8 @@ Rules:
 3. "amount": The transaction amount as a number. Look for words like "ribu" (thousand), "juta" (million), "ratus" (hundred), "M" or "jt" (e.g., "15 ribu" -> 15000, "1.5 juta" -> 1500000).
 4. "date": The date in YYYY-MM-DD format. If relative keywords like "tadi", "hari ini", "barusan" are used, use the current date: "${todayStr}". If "kemarin" is used, compute yesterday's date. Otherwise, use "${todayStr}".
 5. "note": A short note summarizing the transaction (maximum 50 characters).
+6. "Scope check": If the input text is not a financial transaction statement (e.g. if it is a programming/coding question, a math query, general knowledge, writing poem, or random conversation unrelated to expenses or income logs), you MUST set "type", "category_id", "amount", "date", and "note" to null.
+7. "Aggregation": You MUST return exactly one single JSON object, NOT an array. If the input text describes multiple items/purchases, aggregate them into a single transaction (sum their amounts, combine the descriptions in the "note", and choose the most relevant category).
 
 Return ONLY a JSON object with this exact structure:
 {
@@ -146,7 +148,7 @@ Input text: "${trimmedText}"
           ],
           generationConfig: {
             responseMimeType: "application/json",
-            maxOutputTokens: 150
+            maxOutputTokens: 250
           }
         }),
         signal: controller.signal
@@ -172,6 +174,18 @@ Input text: "${trimmedText}"
     if (!validated.success) {
       console.error("Zod validation failed on AI output:", validated.error);
       return { success: false, error: "Respons kecerdasan buatan tidak sesuai format." };
+    }
+
+    // Reject out-of-scope prompts (where model sets all relevant fields to null)
+    if (
+      !validated.data.type &&
+      !validated.data.amount &&
+      !validated.data.note
+    ) {
+      return {
+        success: false,
+        error: "Input tidak dikenali sebagai transaksi keuangan. Silakan masukkan deskripsi belanja atau pendapatan Anda."
+      };
     }
 
     // Log usage to database after successful validation

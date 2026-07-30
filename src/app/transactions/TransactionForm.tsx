@@ -9,6 +9,7 @@ import {
   Receipt, 
   ArrowDownLeft01Icon, 
   ArrowUpRight01Icon, 
+  ArrowRight01Icon,
   Folder01Icon, 
   Coins01Icon, 
   Calendar01Icon, 
@@ -34,11 +35,12 @@ export default function TransactionForm({ categories }: { categories: Category[]
   const [date, setDate] = useState<string>(todayStr);
   const [note, setNote] = useState<string>("");
 
-  // Voice Input states
+  // Voice & Text AI Input states
   const [isSpeechSupported, setIsSpeechSupported] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, startProcessing] = useTransition();
   const [voiceError, setVoiceError] = useState("");
+  const [typedText, setTypedText] = useState("");
   const recognitionRef = useRef<any>(null);
 
   const filteredCategories = categories.filter((c) => c.type === selectedType);
@@ -112,49 +114,67 @@ export default function TransactionForm({ categories }: { categories: Category[]
     recognition.onresult = async (event: any) => {
       const transcript = event.results[0][0].transcript;
       setIsListening(false);
-      
-      startProcessing(async () => {
-        try {
-          const result = await extractTransactionFromVoice(transcript);
-          if (result.success && result.data) {
-            const { amount: extractedAmt, date: extractedDate, note: extractedNote, category_id, type } = result.data;
-            
-            // Set transaction type and category synchronously
-            const targetType = type || selectedType;
-            if (type) {
-              setSelectedType(type);
-            }
-            if (extractedAmt) {
-              setAmount(extractedAmt.toString());
-            }
-            if (extractedDate) {
-              setDate(extractedDate);
-            }
-            if (extractedNote) {
-              setNote(extractedNote);
-            }
-            if (category_id) {
-              setSelectedCategory(category_id);
-            } else {
-              const filtered = categories.filter((c) => c.type === targetType);
-              if (filtered.length > 0) {
-                setSelectedCategory(filtered[0].id);
-              } else {
-                setSelectedCategory("");
-              }
-            }
-          } else {
-            setVoiceError(result.error || "Gagal mengolah teks transaksi.");
-          }
-        } catch (err) {
-          console.error("Voice processing server action failed:", err);
-          setVoiceError("Gagal memproses data suara ke server.");
-        }
-      });
+      processText(transcript);
     };
 
     recognitionRef.current = recognition;
     recognition.start();
+  };
+
+  // Unified logic to process transcribed or typed text via Gemini API
+  const processText = (textToProcess: string) => {
+    const trimmed = textToProcess.trim();
+    if (!trimmed) return;
+
+    if (trimmed.length > 200) {
+      setVoiceError("Teks terlalu panjang (maksimal 200 karakter).");
+      return;
+    }
+
+    setVoiceError("");
+    startProcessing(async () => {
+      try {
+        const result = await extractTransactionFromVoice(trimmed);
+        if (result.success && result.data) {
+          const { amount: extractedAmt, date: extractedDate, note: extractedNote, category_id, type } = result.data;
+          
+          // Set transaction type and category synchronously
+          const targetType = type || selectedType;
+          if (type) {
+            setSelectedType(type);
+          }
+          if (extractedAmt) {
+            setAmount(extractedAmt.toString());
+          }
+          if (extractedDate) {
+            setDate(extractedDate);
+          }
+          if (extractedNote) {
+            setNote(extractedNote);
+          }
+          if (category_id) {
+            setSelectedCategory(category_id);
+          } else {
+            const filtered = categories.filter((c) => c.type === targetType);
+            if (filtered.length > 0) {
+              setSelectedCategory(filtered[0].id);
+            } else {
+              setSelectedCategory("");
+            }
+          }
+          setTypedText(""); // Clear input on success
+        } else {
+          setVoiceError(result.error || "Gagal mengolah teks transaksi.");
+        }
+      } catch (err) {
+        console.error("AI processing server action failed:", err);
+        setVoiceError("Gagal memproses data ke server.");
+      }
+    });
+  };
+
+  const handleTextSubmit = () => {
+    processText(typedText);
   };
 
   return (
@@ -166,28 +186,62 @@ export default function TransactionForm({ categories }: { categories: Category[]
         </span>
       </h3>
 
-      {/* Voice Assistant Widget */}
-      {isSpeechSupported && (
-        <div className="p-4 rounded-2xl bg-canvas-soft/80 border border-hairline flex flex-col gap-2.5 transition-all duration-150">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full ${
-                isListening 
-                  ? "bg-rose-500 animate-ping" 
-                  : isProcessing 
-                  ? "bg-indigo-500 animate-pulse" 
-                  : "bg-indigo-600"
-              }`}></span>
-              <span className="font-sans text-[10px] font-bold tracking-widest text-body uppercase">
-                {isListening ? "Mendengarkan..." : isProcessing ? "Menganalisis Suara..." : "Input Suara Instan"}
-              </span>
-            </div>
-            
+      {/* AI Auto-Fill Assistant Widget */}
+      <div className="p-4 rounded-2xl bg-canvas-soft/80 border border-hairline flex flex-col gap-2.5 transition-all duration-150">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className={`w-2 h-2 rounded-full ${
+              isListening 
+                ? "bg-rose-500 animate-ping" 
+                : isProcessing 
+                ? "bg-indigo-500 animate-pulse" 
+                : "bg-indigo-600"
+            }`}></span>
+            <span className="font-sans text-[10px] font-bold tracking-widest text-body uppercase">
+              {isListening ? "Mendengarkan..." : isProcessing ? "Menganalisis..." : "Asisten AI Instan"}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1.5 text-[9px] font-sans font-bold text-body">
+            <span>{typedText.length}/200</span>
+          </div>
+        </div>
+
+        {/* Dual Input: Text Field & Voice Button */}
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <input
+              type="text"
+              maxLength={200}
+              value={typedText}
+              onChange={(e) => setTypedText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleTextSubmit();
+                }
+              }}
+              disabled={isProcessing || isPending || isListening}
+              placeholder="Tulis transaksi (cth: jajan bakso 25rb kemarin)..."
+              className="w-full pl-3 pr-8 py-2.5 text-xs font-sans bg-card border border-hairline rounded-xl outline-none focus:border-indigo-500/50 transition-all text-ink placeholder:text-body/50 disabled:opacity-50"
+            />
             <button
               type="button"
-              disabled={isProcessing || isPending}
+              onClick={handleTextSubmit}
+              disabled={isProcessing || isPending || isListening || !typedText.trim()}
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-lg flex items-center justify-center bg-indigo-50 text-indigo-600 hover:bg-indigo-100 disabled:opacity-30 disabled:hover:bg-indigo-50 transition-all"
+              title="Kirim ke AI"
+            >
+              <HugeiconsIcon icon={ArrowRight01Icon} size={12} strokeWidth={2.5} />
+            </button>
+          </div>
+
+          {isSpeechSupported && (
+            <button
+              type="button"
+              disabled={isProcessing || isPending || !!typedText.trim()}
               onClick={toggleListening}
-              className={`w-9 h-9 rounded-xl flex items-center justify-center border transition-all duration-150 shadow-sm disabled:opacity-50 ${
+              className={`w-9 h-9 rounded-xl flex items-center justify-center border transition-all duration-150 shadow-sm disabled:opacity-40 ${
                 isListening
                   ? "bg-rose-500 text-white border-rose-500 scale-105 shadow-rose-500/20"
                   : "bg-card text-indigo-600 border-hairline hover:border-indigo-500/30 hover:text-indigo-700"
@@ -200,23 +254,23 @@ export default function TransactionForm({ categories }: { categories: Category[]
                 strokeWidth={2.2} 
               />
             </button>
-          </div>
-
-          {voiceError && (
-            <span className="text-[10px] font-sans font-bold text-budget-red leading-normal">
-              Info: {voiceError}
-            </span>
           )}
-          
-          <p className="text-[10px] text-body leading-relaxed font-sans">
-            {isListening 
-              ? "Bicaralah sekarang secara natural (contoh: 'beli nasi padang dua puluh ribu tadi siang')" 
-              : isProcessing 
-              ? "Sistem AI sedang menganalisis detail transaksi Anda..." 
-              : "Tekan mikrofon untuk mengisi form otomatis lewat ucapan bahasa Indonesia."}
-          </p>
         </div>
-      )}
+
+        {voiceError && (
+          <span className="text-[10px] font-sans font-bold text-budget-red leading-normal">
+            Info: {voiceError}
+          </span>
+        )}
+        
+        <p className="text-[10px] text-body leading-relaxed font-sans">
+          {isListening 
+            ? "Bicaralah secara alami (contoh: 'beli bensin tiga puluh ribu tadi sore')." 
+            : isProcessing 
+            ? "Sistem AI sedang menganalisis detail transaksi Anda..." 
+            : "Ketik transaksi lalu tekan Enter, atau klik mikrofon untuk berbicara."}
+        </p>
+      </div>
 
       <form action={formAction} className="space-y-6">
         <div>
