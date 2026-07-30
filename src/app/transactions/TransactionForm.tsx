@@ -178,8 +178,8 @@ export default function TransactionForm({ categories }: { categories: Category[]
   };
 
   return (
-    <div className="bg-card p-6 rounded-3xl border border-hairline shadow-sm space-y-6">
-      <h3 className="font-sans font-black text-sm text-ink uppercase flex items-center gap-1.5 border-b border-hairline pb-4 justify-between">
+    <div className="bg-card p-5 rounded-3xl border border-hairline shadow-sm space-y-4">
+      <h3 className="font-sans font-black text-sm text-ink uppercase flex items-center gap-1.5 border-b border-hairline pb-3 justify-between">
         <span className="flex items-center gap-1.5">
           <HugeiconsIcon icon={Receipt} size={14} strokeWidth={2.2} className="text-indigo-600" />
           <span>Record Transaction</span>
@@ -187,7 +187,7 @@ export default function TransactionForm({ categories }: { categories: Category[]
       </h3>
 
       {/* AI Auto-Fill Assistant Widget */}
-      <div className="p-4 rounded-2xl bg-canvas-soft/80 border border-hairline flex flex-col gap-2.5 transition-all duration-150">
+      <div className="p-3 rounded-2xl bg-canvas-soft/80 border border-hairline flex flex-col gap-2 transition-all duration-150">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className={`w-2 h-2 rounded-full ${
@@ -222,18 +222,20 @@ export default function TransactionForm({ categories }: { categories: Category[]
                 }
               }}
               disabled={isProcessing || isPending || isListening}
-              placeholder="Tulis transaksi (cth: jajan bakso 25rb kemarin)..."
-              className="w-full pl-3 pr-8 py-2.5 text-xs font-sans bg-card border border-hairline rounded-xl outline-none focus:border-indigo-500/50 transition-all text-ink placeholder:text-body/50 disabled:opacity-50"
+              placeholder="Cth: kopi 25rb kemarin"
+              className={`w-full pl-3 ${typedText.trim() ? "pr-8" : "pr-3"} py-2 text-base sm:text-xs font-sans bg-card border border-hairline rounded-xl outline-none focus:border-indigo-500/50 transition-all text-ink placeholder:text-body/50 disabled:opacity-50`}
             />
-            <button
-              type="button"
-              onClick={handleTextSubmit}
-              disabled={isProcessing || isPending || isListening || !typedText.trim()}
-              className="absolute right-1.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-lg flex items-center justify-center bg-indigo-50 text-indigo-600 hover:bg-indigo-100 disabled:opacity-30 disabled:hover:bg-indigo-50 transition-all"
-              title="Kirim ke AI"
-            >
-              <HugeiconsIcon icon={ArrowRight01Icon} size={12} strokeWidth={2.5} />
-            </button>
+            {typedText.trim() && (
+              <button
+                type="button"
+                onClick={handleTextSubmit}
+                disabled={isProcessing || isPending || isListening}
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-lg flex items-center justify-center bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-all"
+                title="Kirim ke AI"
+              >
+                <HugeiconsIcon icon={ArrowRight01Icon} size={12} strokeWidth={2.5} />
+              </button>
+            )}
           </div>
 
           {isSpeechSupported && (
@@ -241,7 +243,7 @@ export default function TransactionForm({ categories }: { categories: Category[]
               type="button"
               disabled={isProcessing || isPending || !!typedText.trim()}
               onClick={toggleListening}
-              className={`w-9 h-9 rounded-xl flex items-center justify-center border transition-all duration-150 shadow-sm disabled:opacity-40 ${
+              className={`w-[42px] h-[42px] sm:w-[34px] sm:h-[34px] rounded-xl flex items-center justify-center border transition-all duration-150 shadow-sm disabled:opacity-40 ${
                 isListening
                   ? "bg-rose-500 text-white border-rose-500 scale-105 shadow-rose-500/20"
                   : "bg-card text-indigo-600 border-hairline hover:border-indigo-500/30 hover:text-indigo-700"
@@ -250,7 +252,7 @@ export default function TransactionForm({ categories }: { categories: Category[]
             >
               <HugeiconsIcon 
                 icon={isListening ? MicOff01Icon : Mic01Icon} 
-                size={16} 
+                size={14} 
                 strokeWidth={2.2} 
               />
             </button>
@@ -263,147 +265,155 @@ export default function TransactionForm({ categories }: { categories: Category[]
           </span>
         )}
         
-        <p className="text-[10px] text-body leading-relaxed font-sans">
-          {isListening 
-            ? "Bicaralah secara alami (contoh: 'beli bensin tiga puluh ribu tadi sore')." 
-            : isProcessing 
-            ? "Sistem AI sedang menganalisis detail transaksi Anda..." 
-            : "Ketik transaksi lalu tekan Enter, atau klik mikrofon untuk berbicara."}
-        </p>
+        {(isListening || isProcessing) && (
+          <p className="text-[10px] text-body leading-relaxed font-sans animate-pulse">
+            {isListening 
+              ? "Bicaralah secara alami (cth: 'beli bensin 30rb tadi sore')." 
+              : "Sistem AI sedang menganalisis detail transaksi Anda..."}
+          </p>
+        )}
       </div>
 
-      <form action={formAction} className="space-y-6">
-        <div>
-          <span className="block font-sans font-bold text-[10px] tracking-widest text-body uppercase mb-2">
+      <form action={formAction} className="space-y-4">
+        {/* Segmented Control for Transaction Type */}
+        <div className="space-y-1.5">
+          <span className="block font-sans font-bold text-[9px] tracking-widest text-body uppercase">
             Transaction Type
           </span>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-1 bg-canvas-soft p-1 rounded-2xl border border-hairline">
             <button
               type="button"
               disabled={isPending}
               onClick={() => handleTypeChange("EXPENSE")}
-              className={`p-3 rounded-2xl font-sans text-xs font-bold tracking-wider uppercase border transition-all duration-150 flex items-center justify-center gap-1.5 ${
+              className={`py-2 px-3 rounded-xl font-sans text-xs font-bold tracking-wider uppercase transition-all duration-150 flex items-center justify-center gap-1.5 ${
                 selectedType === "EXPENSE"
-                  ? "bg-rose-500/10 text-budget-red border-rose-500/20"
-                  : "bg-canvas-soft text-body border-hairline hover:border-body"
+                  ? "bg-rose-500/10 text-budget-red border border-rose-500/10 shadow-sm"
+                  : "text-body hover:text-ink"
               }`}
             >
-              <HugeiconsIcon icon={ArrowDownLeft01Icon} size={14} strokeWidth={2.2} />
+              <HugeiconsIcon icon={ArrowDownLeft01Icon} size={13} strokeWidth={2.5} />
               <span>Expense</span>
             </button>
             <button
               type="button"
               disabled={isPending}
               onClick={() => handleTypeChange("INCOME")}
-              className={`p-3 rounded-2xl font-sans text-xs font-bold tracking-wider uppercase border transition-all duration-150 flex items-center justify-center gap-1.5 ${
+              className={`py-2 px-3 rounded-xl font-sans text-xs font-bold tracking-wider uppercase transition-all duration-150 flex items-center justify-center gap-1.5 ${
                 selectedType === "INCOME"
-                  ? "bg-emerald-500/10 text-budget-green border-emerald-500/20"
-                  : "bg-canvas-soft text-body border-hairline hover:border-body"
+                  ? "bg-emerald-500/10 text-budget-green border-emerald-500/10 shadow-sm"
+                  : "text-body hover:text-ink"
               }`}
             >
-              <HugeiconsIcon icon={ArrowUpRight01Icon} size={14} strokeWidth={2.2} />
+              <HugeiconsIcon icon={ArrowUpRight01Icon} size={13} strokeWidth={2.5} />
               <span>Income</span>
             </button>
           </div>
           <input type="hidden" name="type" value={selectedType} />
         </div>
 
-        <div>
-          <label htmlFor="category_id" className="block font-sans font-bold text-[10px] tracking-widest text-body uppercase mb-2">
-            Category
-          </label>
-          {filteredCategories.length === 0 ? (
-            <div className="text-xs text-body font-sans italic p-4 border border-dashed border-hairline bg-canvas-soft rounded-2xl">
-              No categories found. Please create an {selectedType.toLowerCase()} category first.
-            </div>
-          ) : (
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                <HugeiconsIcon icon={Folder01Icon} size={16} strokeWidth={1.8} />
+        {/* Compact 2-Column Grid for Form Inputs */}
+        <div className="grid grid-cols-2 gap-3">
+          {/* Category selection */}
+          <div className="col-span-1">
+            <label htmlFor="category_id" className="block font-sans font-bold text-[9px] tracking-widest text-body uppercase mb-1.5">
+              Category
+            </label>
+            {filteredCategories.length === 0 ? (
+              <div className="text-[10px] text-body font-sans italic p-3 border border-dashed border-hairline bg-canvas-soft rounded-2xl">
+                No categories found.
               </div>
-              <select
-                id="category_id"
-                name="category_id"
+            ) : (
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                  <HugeiconsIcon icon={Folder01Icon} size={14} strokeWidth={1.8} />
+                </div>
+                <select
+                  id="category_id"
+                  name="category_id"
+                  required
+                  disabled={isPending}
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full bg-canvas-soft text-ink border border-hairline p-2.5 pl-9 rounded-2xl font-sans text-base sm:text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50 appearance-none"
+                >
+                  {filteredCategories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+
+          {/* Amount */}
+          <div className="col-span-1">
+            <label htmlFor="amount" className="block font-sans font-bold text-[9px] tracking-widest text-body uppercase mb-1.5">
+              Amount (IDR)
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                <HugeiconsIcon icon={Coins01Icon} size={14} strokeWidth={1.8} />
+              </div>
+              <input
+                id="amount"
+                name="amount"
+                type="number"
+                step="0.01"
+                min="0.01"
                 required
                 disabled={isPending}
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full bg-canvas-soft text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50 appearance-none"
-              >
-                {filteredCategories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
+                placeholder="0.00"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="w-full bg-canvas-soft text-ink border border-hairline p-2.5 pl-9 rounded-2xl font-sans text-base sm:text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
+              />
             </div>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="amount" className="block font-sans font-bold text-[10px] tracking-widest text-body uppercase mb-2">
-            Amount (IDR)
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-              <HugeiconsIcon icon={Coins01Icon} size={16} strokeWidth={1.8} />
-            </div>
-            <input
-              id="amount"
-              name="amount"
-              type="number"
-              step="0.01"
-              min="0.01"
-              required
-              disabled={isPending}
-              placeholder="0.00"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="w-full bg-canvas-soft text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
-            />
           </div>
-        </div>
 
-        <div>
-          <label htmlFor="date" className="block font-sans font-bold text-[10px] tracking-widest text-body uppercase mb-2">
-            Transaction Date
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-              <HugeiconsIcon icon={Calendar01Icon} size={16} strokeWidth={1.8} />
+          {/* Transaction Date */}
+          <div className="col-span-2">
+            <label htmlFor="date" className="block font-sans font-bold text-[9px] tracking-widest text-body uppercase mb-1.5">
+              Date
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                <HugeiconsIcon icon={Calendar01Icon} size={14} strokeWidth={1.8} />
+              </div>
+              <input
+                id="date"
+                name="date"
+                type="date"
+                required
+                disabled={isPending}
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full bg-canvas-soft text-ink border border-hairline p-2.5 pl-9 rounded-2xl font-sans text-base sm:text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50 appearance-none"
+              />
             </div>
-            <input
-              id="date"
-              name="date"
-              type="date"
-              required
-              disabled={isPending}
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="w-full bg-canvas-soft text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50 appearance-none"
-            />
           </div>
-        </div>
 
-        <div>
-          <label htmlFor="note" className="block font-sans font-bold text-[10px] tracking-widest text-body uppercase mb-2">
-            Note (Optional)
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-              <HugeiconsIcon icon={NotebookIcon} size={16} strokeWidth={1.8} />
+          {/* Note */}
+          <div className="col-span-2">
+            <label htmlFor="note" className="block font-sans font-bold text-[9px] tracking-widest text-body uppercase mb-1.5">
+              Note (Optional)
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                <HugeiconsIcon icon={NotebookIcon} size={14} strokeWidth={1.8} />
+              </div>
+              <input
+                id="note"
+                name="note"
+                type="text"
+                maxLength={50}
+                disabled={isPending}
+                placeholder="Weekly groceries"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                className="w-full bg-canvas-soft text-ink border border-hairline p-2.5 pl-9 rounded-2xl font-sans text-base sm:text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
+              />
             </div>
-            <input
-              id="note"
-              name="note"
-              type="text"
-              maxLength={50}
-              disabled={isPending}
-              placeholder="e.g. Weekly groceries"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              className="w-full bg-canvas-soft text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
-            />
           </div>
         </div>
 
@@ -416,7 +426,7 @@ export default function TransactionForm({ categories }: { categories: Category[]
         <button
           type="submit"
           disabled={isPending || filteredCategories.length === 0}
-          className="w-full bg-indigo-600 text-white p-3.5 rounded-full font-sans font-bold text-xs tracking-wider uppercase hover:bg-indigo-700 transition-colors duration-150 disabled:opacity-50 flex items-center justify-center gap-1.5"
+          className="w-full bg-indigo-600 text-white py-3 rounded-full font-sans font-bold text-xs tracking-wider uppercase hover:bg-indigo-700 transition-colors duration-150 disabled:opacity-50 flex items-center justify-center gap-1.5 mt-2"
         >
           <HugeiconsIcon icon={PlusSignIcon} size={14} strokeWidth={2.2} />
           <span>{isPending ? "Recording..." : "Record Transaction"}</span>

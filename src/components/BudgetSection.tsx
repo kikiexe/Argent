@@ -102,7 +102,7 @@ export default function BudgetSection({
                 defaultValue={totalLimit || ""}
                 disabled={isPending}
                 placeholder="e.g. 5000000"
-                className="w-full bg-card text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150"
+                className="w-full bg-card text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-base sm:text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150"
               />
             </div>
           </div>
