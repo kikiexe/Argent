@@ -3,6 +3,7 @@ import "./globals.css";
 import MobileNavigation from "@/components/MobileNavigation";
 import type { Viewport } from "next";
 import { Inter } from "next/font/google";
+import TimezoneInitializer from "@/components/TimezoneInitializer";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -43,9 +44,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} bg-canvas text-ink min-h-screen flex flex-col font-sans antialiased`}>
+        <TimezoneInitializer />
         {children}
         <MobileNavigation />
       </body>
     </html>
   );
 }
+

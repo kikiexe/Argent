@@ -2,6 +2,8 @@ import Header from "@/components/Header";
 import { createClient } from "@/utils/supabase/server";
 import TransactionForm from "./TransactionForm";
 import TransactionTable from "./TransactionTable";
+import { cookies } from "next/headers";
+import { getLocalDateComponents } from "@/utils/timezone";
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -12,9 +14,12 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
   const monthParam = resolvedSearchParams.month;
   const yearParam = resolvedSearchParams.year;
 
-  const currentDate = new Date();
-  const currentMonth = monthParam ? parseInt(monthParam as string) : currentDate.getMonth() + 1;
-  const currentYear = yearParam ? parseInt(yearParam as string) : currentDate.getFullYear();
+  const cookieStore = await cookies();
+  const timezone = cookieStore.get("user-timezone")?.value || "UTC";
+  const { year: localYear, month: localMonth } = getLocalDateComponents(timezone);
+  
+  const currentMonth = monthParam ? parseInt(monthParam as string) : localMonth;
+  const currentYear = yearParam ? parseInt(yearParam as string) : localYear;
 
   const startDate = `${currentYear}-${String(currentMonth).padStart(2, "0")}-01`;
   const endDate = `${currentYear}-${String(currentMonth).padStart(2, "0")}-${new Date(

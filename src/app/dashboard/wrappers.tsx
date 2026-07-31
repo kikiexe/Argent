@@ -9,6 +9,8 @@ import {
   ArrowDownLeft01Icon, 
   ArrowUpRight01Icon 
 } from "@hugeicons/core-free-icons";
+import { cookies } from "next/headers";
+import { getLocalDateComponents } from "@/utils/timezone";
 
 interface WrapperProps {
   userId: string;
@@ -21,15 +23,16 @@ interface BalanceCardWrapperProps extends WrapperProps {
 
 export async function BalanceCardWrapper({ userId, userName, userEmail }: BalanceCardWrapperProps) {
   const supabase = await createClient();
-  const now = new Date();
-  const currentYear = now.getFullYear();
+  const cookieStore = await cookies();
+  const timezone = cookieStore.get("user-timezone")?.value || "UTC";
+  const { year: currentYear, month: currentMonth } = getLocalDateComponents(timezone);
 
-  const chartStartDate = new Date(currentYear, now.getMonth() - 11, 1);
-  const chartStartDateString = chartStartDate.toISOString().split("T")[0];
+  const chartStartDate = new Date(currentYear, currentMonth - 12, 1);
+  const chartStartDateString = `${chartStartDate.getFullYear()}-${String(chartStartDate.getMonth() + 1).padStart(2, "0")}-01`;
 
   /* Fetch lifetime balance stats and chart transaction data in parallel */
   const [statsResult, chartTxResult] = await Promise.all([
-    supabase.rpc("get_user_stats").maybeSingle(),
+    supabase.rpc("get_user_stats", { user_timezone: timezone }).maybeSingle(),
     supabase.from("transactions").select(`
       *,
       categories (
@@ -55,13 +58,13 @@ export async function BalanceCardWrapper({ userId, userName, userEmail }: Balanc
 
 export async function BudgetSectionWrapper({ userId }: WrapperProps) {
   const supabase = await createClient();
-  const now = new Date();
-  const currentMonth = now.getMonth() + 1;
-  const currentYear = now.getFullYear();
+  const cookieStore = await cookies();
+  const timezone = cookieStore.get("user-timezone")?.value || "UTC";
+  const { year: currentYear, month: currentMonth } = getLocalDateComponents(timezone);
 
   /* Fetch monthly budget stats and monthly target budget in parallel */
   const [statsResult, budgetResult] = await Promise.all([
-    supabase.rpc("get_user_stats").maybeSingle(),
+    supabase.rpc("get_user_stats", { user_timezone: timezone }).maybeSingle(),
     supabase.from("monthly_budgets").select("total_limit").eq("user_id", userId).eq("month", currentMonth).eq("year", currentYear).maybeSingle()
   ]);
 
@@ -81,9 +84,9 @@ export async function BudgetSectionWrapper({ userId }: WrapperProps) {
 
 export async function CategoryBudgetWrapper({ userId }: WrapperProps) {
   const supabase = await createClient();
-  const now = new Date();
-  const currentMonth = now.getMonth() + 1;
-  const currentYear = now.getFullYear();
+  const cookieStore = await cookies();
+  const timezone = cookieStore.get("user-timezone")?.value || "UTC";
+  const { year: currentYear, month: currentMonth } = getLocalDateComponents(timezone);
 
   /* Fetch current month category budgets count, general categories, and monthly budget limit in parallel */
   const [countResult, catsResult, budgetResult] = await Promise.all([

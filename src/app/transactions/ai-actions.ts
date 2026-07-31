@@ -3,6 +3,8 @@
 import { z } from "zod";
 import { createClient } from "@/utils/supabase/server";
 import { GoogleGenAI } from "@google/genai";
+import { cookies } from "next/headers";
+import { getLocalDateString } from "@/utils/timezone";
 
 const extractionSchema = z.object({
   category_id: z.string().uuid().nullable().optional(),
@@ -36,6 +38,8 @@ export async function extractTransactionFromVoice(text: string): Promise<Extract
 
   // 1. Authenticate user
   const supabase = await createClient();
+  const cookieStore = await cookies();
+  const timezone = cookieStore.get("user-timezone")?.value || "UTC";
   const {
     data: { user },
     error: authError
@@ -93,7 +97,7 @@ export async function extractTransactionFromVoice(text: string): Promise<Extract
     return { success: false, error: "Sistem AI tidak terkonfigurasi (kunci API hilang)." };
   }
 
-  const todayStr = new Date().toLocaleDateString("sv-SE"); // YYYY-MM-DD local format
+  const todayStr = getLocalDateString(timezone);
 
   const prompt = `
 You are a transaction assistant for a finance app called Pecune.
