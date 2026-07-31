@@ -4,6 +4,11 @@ import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
+export type BudgetActionState = {
+  error?: string;
+  success?: boolean;
+} | null;
+
 const budgetSchema = z.object({
   month: z.number().int().min(1).max(12),
   year: z.number().int().min(2000),
@@ -11,9 +16,9 @@ const budgetSchema = z.object({
 });
 
 export async function setMonthlyBudget(
-  prevState: any,
+  prevState: BudgetActionState,
   formData: FormData
-) {
+): Promise<BudgetActionState> {
   try {
     const supabase = await createClient();
     const {
@@ -60,7 +65,7 @@ export async function setMonthlyBudget(
       return { error: "Gagal menyimpan anggaran bulanan. Silakan coba lagi." };
     }
 
-    revalidatePath("/");
+    revalidatePath("/", "layout");
     return { success: true };
   } catch (err: any) {
     console.error("Unexpected error in setMonthlyBudget:", err);
@@ -82,9 +87,9 @@ const deleteCategoryBudgetSchema = z.object({
 });
 
 export async function setCategoryBudget(
-  prevState: any,
+  prevState: BudgetActionState,
   formData: FormData
-) {
+): Promise<BudgetActionState> {
   try {
     const supabase = await createClient();
     const {
@@ -150,7 +155,7 @@ export async function setCategoryBudget(
       return { error: "Gagal menyimpan anggaran kategori. Silakan coba lagi." };
     }
 
-    revalidatePath("/");
+    revalidatePath("/", "layout");
     return { success: true };
   } catch (err: any) {
     console.error("Unexpected error in setCategoryBudget:", err);
@@ -199,7 +204,7 @@ export async function deleteCategoryBudget(
       return { error: "Gagal menghapus anggaran kategori. Silakan coba lagi." };
     }
 
-    revalidatePath("/");
+    revalidatePath("/", "layout");
     return { success: true };
   } catch (err: any) {
     console.error("Unexpected error in deleteCategoryBudget:", err);

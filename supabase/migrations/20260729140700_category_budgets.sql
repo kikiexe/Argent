@@ -15,13 +15,15 @@ CREATE TABLE IF NOT EXISTS category_budgets (
 ALTER TABLE category_budgets ENABLE ROW LEVEL SECURITY;
 
 -- Policy: Users can only access their own category budgets
+DROP POLICY IF EXISTS "Users can only access their own category budgets" ON category_budgets;
 CREATE POLICY "Users can only access their own category budgets"
     ON category_budgets FOR ALL
     USING (auth.uid() = user_id)
     WITH CHECK (auth.uid() = user_id);
 
 -- Performance Index
-CREATE INDEX IF NOT EXISTS idx_category_budgets_user_month_year ON category_budgets(user_id, month, year);
+CREATE INDEX IF NOT EXISTS idx_category_budgets_user_year_month ON category_budgets(user_id, year, month);
+CREATE INDEX IF NOT EXISTS idx_category_budgets_category_id ON category_budgets(category_id);
 
 -- RPC for aggregating usage per category
 CREATE OR REPLACE FUNCTION get_category_budget_usage(target_month INTEGER, target_year INTEGER)
