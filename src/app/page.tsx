@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Wallet01Icon,
@@ -215,11 +216,13 @@ export default function LandingPage() {
       {/* Main Mockup Billboard */}
       <section className="py-16 md:py-24 border-b border-[#e0e0e0]">
         <div className="max-w-5xl mx-auto px-6">
-          <img 
+          <Image 
             src={IMAGES.home} 
             alt="Pecune Dashboard App Mockup" 
+            width={1200}
+            height={800}
             className="w-full h-auto object-contain"
-            loading="eager"
+            priority
           />
         </div>
       </section>
@@ -245,9 +248,11 @@ export default function LandingPage() {
                   <p className="text-sm text-[#757575] leading-relaxed">{f.desc}</p>
                 </div>
                 {f.img && (
-                  <img 
+                  <Image 
                     src={f.img} 
                     alt={f.title} 
+                    width={800}
+                    height={500}
                     className="w-full h-auto object-contain mt-2" 
                     loading="lazy" 
                   />
@@ -312,22 +317,22 @@ export default function LandingPage() {
                 <>
                   <div className="space-y-2">
                     <span className="block font-label text-[10px] font-bold text-[#757575] uppercase tracking-wider">Langkah 1</span>
-                    <img src={IMAGES.step1Android} alt="Android Step 1" className="w-full h-auto object-contain" />
+                    <Image src={IMAGES.step1Android} alt="Android Step 1" width={400} height={300} className="w-full h-auto object-contain" />
                   </div>
                   <div className="space-y-2">
                     <span className="block font-label text-[10px] font-bold text-[#757575] uppercase tracking-wider">Langkah 2</span>
-                    <img src={IMAGES.step2Android} alt="Android Step 2" className="w-full h-auto object-contain" />
+                    <Image src={IMAGES.step2Android} alt="Android Step 2" width={400} height={300} className="w-full h-auto object-contain" />
                   </div>
                 </>
               ) : (
                 <>
                   <div className="space-y-2">
                     <span className="block font-label text-[10px] font-bold text-[#757575] uppercase tracking-wider">Langkah 1</span>
-                    <img src={IMAGES.step1Ios} alt="iOS Step 1" className="w-full h-auto object-contain" />
+                    <Image src={IMAGES.step1Ios} alt="iOS Step 1" width={400} height={300} className="w-full h-auto object-contain" />
                   </div>
                   <div className="space-y-2">
                     <span className="block font-label text-[10px] font-bold text-[#757575] uppercase tracking-wider">Langkah 2</span>
-                    <img src={IMAGES.step2Ios} alt="iOS Step 2" className="w-full h-auto object-contain" />
+                    <Image src={IMAGES.step2Ios} alt="iOS Step 2" width={400} height={300} className="w-full h-auto object-contain" />
                   </div>
                 </>
               )}

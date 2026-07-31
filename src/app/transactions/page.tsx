@@ -32,28 +32,31 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
     throw new Error("Unauthorized");
   }
 
-  /* Fetch user categories for the input select */
-  const { data: categories } = await supabase
-    .from("categories")
-    .select("*")
-    .eq("user_id", user.id)
-    .order("name", { ascending: true });
+  /* Fetch user categories for the input select and transactions for current month and year in parallel */
+  const [categoriesResult, transactionsResult] = await Promise.all([
+    supabase
+      .from("categories")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("name", { ascending: true }),
+    supabase
+      .from("transactions")
+      .select(`
+        *,
+        categories (
+          id,
+          name,
+          type
+        )
+      `)
+      .eq("user_id", user.id)
+      .gte("date", startDate)
+      .lte("date", endDate)
+      .order("date", { ascending: false })
+  ]);
 
-  /* Fetch transactions for current month and year */
-  const { data: transactions } = await supabase
-    .from("transactions")
-    .select(`
-      *,
-      categories (
-        id,
-        name,
-        type
-      )
-    `)
-    .eq("user_id", user.id)
-    .gte("date", startDate)
-    .lte("date", endDate)
-    .order("date", { ascending: false });
+  const categories = categoriesResult.data;
+  const transactions = transactionsResult.data;
 
   return (
     <div className="min-h-screen bg-canvas flex flex-col justify-between">
