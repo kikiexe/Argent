@@ -173,7 +173,7 @@ export async function RecentTransactionsWrapper({ userId }: WrapperProps) {
         </h4>
         <Link
           href="/transactions"
-          className="font-sans text-[10px] font-bold tracking-wider text-indigo-600 hover:underline uppercase"
+          className="font-sans text-[10px] font-bold tracking-wider text-link hover:underline uppercase"
         >
           View All
         </Link>

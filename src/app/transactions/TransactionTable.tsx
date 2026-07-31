@@ -111,6 +111,7 @@ export default function TransactionTable({
             <select
               value={filterMonth}
               onChange={(e) => handleFilterChange(Number(e.target.value), filterYear)}
+              aria-label="Filter Month"
               className="appearance-none bg-card text-ink border border-hairline p-2 pl-3 pr-8 rounded-2xl font-sans text-xs uppercase font-bold shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150"
             >
               {MONTHS.map((m) => (
@@ -126,6 +127,7 @@ export default function TransactionTable({
             <select
               value={filterYear}
               onChange={(e) => handleFilterChange(filterMonth, Number(e.target.value))}
+              aria-label="Filter Year"
               className="appearance-none bg-card text-ink border border-hairline p-2 pl-3 pr-8 rounded-2xl font-sans text-xs uppercase font-bold shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150"
             >
               {currentYearOptions.map((y) => (

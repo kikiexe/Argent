@@ -223,7 +223,7 @@ export function RecentTransactionsSkeleton() {
         <h4 className="font-sans text-xs font-bold tracking-widest text-body uppercase">
           Recent Transactions
         </h4>
-        <span className="font-sans text-[10px] font-bold tracking-wider text-indigo-600 uppercase">
+        <span className="font-sans text-[10px] font-bold tracking-wider text-link uppercase">
           View All
         </span>
       </div>
