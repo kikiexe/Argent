@@ -143,6 +143,16 @@ export async function CategoryBudgetWrapper({ userId }: WrapperProps) {
 
 export async function RecentTransactionsWrapper({ userId }: WrapperProps) {
   const supabase = await createClient();
+  const cookieStore = await cookies();
+  const timezone = cookieStore.get("user-timezone")?.value || "UTC";
+  const { year: currentYear, month: currentMonth } = getLocalDateComponents(timezone);
+
+  const startDate = `${currentYear}-${String(currentMonth).padStart(2, "0")}-01`;
+  const endDate = `${currentYear}-${String(currentMonth).padStart(2, "0")}-${new Date(
+    currentYear,
+    currentMonth,
+    0
+  ).getDate()}`;
 
   const { data: recentTransactionsData } = await supabase
     .from("transactions")
@@ -154,6 +164,8 @@ export async function RecentTransactionsWrapper({ userId }: WrapperProps) {
       )
     `)
     .eq("user_id", userId)
+    .gte("date", startDate)
+    .lte("date", endDate)
     .order("date", { ascending: false })
     .limit(5);
 
