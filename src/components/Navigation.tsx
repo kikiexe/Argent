@@ -23,6 +23,7 @@ export default function Navigation() {
           <Link
             key={link.href}
             href={link.href}
+            prefetch={false}
             className={`flex items-center gap-1.5 pb-1 border-b-2 transition-all duration-150 ${
               isActive
                 ? "text-link border-link font-bold"

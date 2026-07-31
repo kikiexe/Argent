@@ -74,6 +74,7 @@ export default function BalanceCard({ balance, userName, userEmail, transactions
                 <Link
                   key={link.href}
                   href={link.href}
+                  prefetch={false}
                   className={`flex items-center gap-1.5 pb-1 border-b-2 transition-all duration-150 ${
                     isActive
                       ? "text-white border-white font-bold"
@@ -203,6 +204,7 @@ export default function BalanceCard({ balance, userName, userEmail, transactions
             <div className="grid grid-cols-2 gap-3 pt-1">
               <Link
                 href="/transactions?type=INCOME"
+                prefetch={false}
                 className="bg-white/10 hover:bg-white/20 border border-white/10 p-3 rounded-full font-sans font-bold text-xs tracking-wider transition-all duration-150 flex items-center justify-center gap-1.5 shadow-sm"
               >
                 <HugeiconsIcon icon={ArrowDownLeft01Icon} size={14} strokeWidth={2.2} />
@@ -210,6 +212,7 @@ export default function BalanceCard({ balance, userName, userEmail, transactions
               </Link>
               <Link
                 href="/transactions?type=EXPENSE"
+                prefetch={false}
                 className="bg-white/10 hover:bg-white/20 border border-white/10 p-3 rounded-full font-sans font-bold text-xs tracking-wider transition-all duration-150 flex items-center justify-center gap-1.5 shadow-sm"
               >
                 <HugeiconsIcon icon={ArrowUpRight01Icon} size={14} strokeWidth={2.2} />

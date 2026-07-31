@@ -29,6 +29,7 @@ export default function MobileNavigation() {
           <Link
             key={link.href}
             href={link.href}
+            prefetch={false}
             className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-md transition-all duration-200 border pointer-events-auto ${
               isActive
                 ? "bg-ink text-canvas border-ink scale-105"
