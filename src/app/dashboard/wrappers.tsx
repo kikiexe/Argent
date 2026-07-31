@@ -16,6 +16,14 @@ interface WrapperProps {
   userId: string;
 }
 
+async function fetchUserStatsSafely(supabase: any, timezone: string) {
+  let statsResult = await supabase.rpc("get_user_stats", { user_timezone: timezone }).maybeSingle();
+  if (statsResult.error && (statsResult.error.code === "PGRST202" || statsResult.error.status === 404)) {
+    statsResult = await supabase.rpc("get_user_stats").maybeSingle();
+  }
+  return statsResult;
+}
+
 interface BalanceCardWrapperProps extends WrapperProps {
   userName: string;
   userEmail: string;
@@ -32,7 +40,7 @@ export async function BalanceCardWrapper({ userId, userName, userEmail }: Balanc
 
   /* Fetch lifetime balance stats and chart transaction data in parallel */
   const [statsResult, chartTxResult] = await Promise.all([
-    supabase.rpc("get_user_stats", { user_timezone: timezone }).maybeSingle(),
+    fetchUserStatsSafely(supabase, timezone),
     supabase.from("transactions").select(`
       *,
       categories (
@@ -64,7 +72,7 @@ export async function BudgetSectionWrapper({ userId }: WrapperProps) {
 
   /* Fetch monthly budget stats and monthly target budget in parallel */
   const [statsResult, budgetResult] = await Promise.all([
-    supabase.rpc("get_user_stats", { user_timezone: timezone }).maybeSingle(),
+    fetchUserStatsSafely(supabase, timezone),
     supabase.from("monthly_budgets").select("total_limit").eq("user_id", userId).eq("month", currentMonth).eq("year", currentYear).maybeSingle()
   ]);
 
