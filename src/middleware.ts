@@ -15,12 +15,20 @@ export async function middleware(request: NextRequest) {
 
   // 1. If not logged in and requesting auth page -> redirect to /login
   if (!user && isAuthRequiredRoute) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    const redirectResponse = NextResponse.redirect(new URL("/login", request.url));
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie);
+    });
+    return redirectResponse;
   }
 
   // 2. If logged in and requesting guest page -> redirect to /dashboard
   if (user && isGuestOnlyRoute) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    const redirectResponse = NextResponse.redirect(new URL("/dashboard", request.url));
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie);
+    });
+    return redirectResponse;
   }
 
   return supabaseResponse;

@@ -80,12 +80,18 @@ export async function createTransaction(prevState: ActionState, formData: FormDa
     return { error: "Gagal mencatat transaksi. Silakan coba lagi." };
   }
 
-  revalidatePath("/transactions");
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   return { success: true };
 }
 
+const deleteTransactionSchema = z.string().uuid("ID Transaksi tidak valid");
+
 export async function deleteTransaction(id: string): Promise<ActionState> {
+  const validatedId = deleteTransactionSchema.safeParse(id);
+  if (!validatedId.success) {
+    return { error: validatedId.error.errors[0].message };
+  }
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -99,14 +105,13 @@ export async function deleteTransaction(id: string): Promise<ActionState> {
   const { error: deleteError } = await supabase
     .from("transactions")
     .delete()
-    .eq("id", id)
+    .eq("id", validatedId.data)
     .eq("user_id", user.id);
 
   if (deleteError) {
     return { error: "Gagal menghapus transaksi. Silakan coba lagi." };
   }
 
-  revalidatePath("/transactions");
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   return { success: true };
 }

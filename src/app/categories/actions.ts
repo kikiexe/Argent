@@ -46,11 +46,18 @@ export async function createCategory(prevState: ActionState, formData: FormData)
     return { error: "Gagal menyimpan kategori. Silakan coba lagi." };
   }
 
-  revalidatePath("/categories");
+  revalidatePath("/", "layout");
   return { success: true };
 }
 
+const deleteCategorySchema = z.string().uuid("ID Kategori tidak valid");
+
 export async function deleteCategory(id: string): Promise<ActionState> {
+  const validatedId = deleteCategorySchema.safeParse(id);
+  if (!validatedId.success) {
+    return { error: validatedId.error.errors[0].message };
+  }
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -64,7 +71,7 @@ export async function deleteCategory(id: string): Promise<ActionState> {
   const { error: deleteError } = await supabase
     .from("categories")
     .delete()
-    .eq("id", id)
+    .eq("id", validatedId.data)
     .eq("user_id", user.id);
 
   if (deleteError) {
@@ -74,8 +81,6 @@ export async function deleteCategory(id: string): Promise<ActionState> {
     return { error: "Gagal menghapus kategori. Silakan coba lagi." };
   }
 
-  revalidatePath("/categories");
-  revalidatePath("/transactions");
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   return { success: true };
 }

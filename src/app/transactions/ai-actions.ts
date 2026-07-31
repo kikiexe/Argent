@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { createClient } from "@/utils/supabase/server";
+import { GoogleGenAI } from "@google/genai";
 
 const extractionSchema = z.object({
   category_id: z.string().uuid().nullable().optional(),
@@ -125,44 +126,34 @@ Input text: "${trimmedText}"
 `;
 
   try {
+    const ai = new GoogleGenAI({ apiKey: geminiApiKey });
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
-    const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": geminiApiKey
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        maxOutputTokens: 250,
+        responseSchema: {
+          type: "OBJECT",
+          properties: {
+            type: { type: "STRING", enum: ["EXPENSE", "INCOME"], nullable: true },
+            category_id: { type: "STRING", nullable: true },
+            amount: { type: "NUMBER", nullable: true },
+            date: { type: "STRING", nullable: true },
+            note: { type: "STRING", nullable: true }
+          },
+          required: ["type", "category_id", "amount", "date", "note"]
         },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: prompt
-                }
-              ]
-            }
-          ],
-          generationConfig: {
-            responseMimeType: "application/json",
-            maxOutputTokens: 250
-          }
-        }),
-        signal: controller.signal
+        abortSignal: controller.signal
       }
-    );
+    });
 
     clearTimeout(timeoutId);
 
-    if (!response.ok) {
-      throw new Error(`Gemini API returned status ${response.status}`);
-    }
-
-    const resJson = await response.json();
-    const responseText = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
+    const responseText = response.text;
 
     if (!responseText) {
       throw new Error("Empty response from Gemini API");

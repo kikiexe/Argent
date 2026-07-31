@@ -1,6 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+type CookieSetOptions = Parameters<
+  NonNullable<Parameters<typeof createServerClient>[2]["cookies"]>["setAll"]
+>[0][number]["options"];
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request
@@ -18,7 +22,7 @@ export async function updateSession(request: NextRequest) {
           cookiesToSet: {
             name: string;
             value: string;
-            options: any;
+            options: CookieSetOptions;
           }[]
         ) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
