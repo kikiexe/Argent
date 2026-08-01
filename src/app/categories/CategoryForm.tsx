@@ -38,35 +38,35 @@ export default function CategoryForm() {
           </div>
         </div>
 
-        <div>
-          <span className="block font-sans font-bold text-[10px] tracking-widest text-body uppercase mb-2">
+        <div className="space-y-1.5">
+          <span className="block font-sans font-bold text-[9px] tracking-widest text-body uppercase">
             Transaction Type
           </span>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-1 bg-canvas-soft p-1 rounded-2xl border border-hairline">
             <button
               type="button"
               disabled={isPending}
               onClick={() => setSelectedType("EXPENSE")}
-              className={`p-3 rounded-2xl font-sans text-xs font-bold tracking-wider uppercase border transition-all duration-150 flex items-center justify-center gap-1.5 ${
+              className={`py-2 px-3 rounded-xl font-sans text-xs font-bold tracking-wider uppercase transition-all duration-150 flex items-center justify-center gap-1.5 ${
                 selectedType === "EXPENSE"
-                  ? "bg-rose-500/10 text-budget-red border-rose-500/20"
-                  : "bg-canvas-soft text-body border-hairline hover:border-body"
+                  ? "bg-rose-500/10 text-budget-red border border-rose-500/10 shadow-sm"
+                  : "text-body hover:text-ink"
               }`}
             >
-              <HugeiconsIcon icon={ArrowDownLeft01Icon} size={14} strokeWidth={2.2} />
+              <HugeiconsIcon icon={ArrowDownLeft01Icon} size={13} strokeWidth={2.5} />
               <span>Expense</span>
             </button>
             <button
               type="button"
               disabled={isPending}
               onClick={() => setSelectedType("INCOME")}
-              className={`p-3 rounded-2xl font-sans text-xs font-bold tracking-wider uppercase border transition-all duration-150 flex items-center justify-center gap-1.5 ${
+              className={`py-2 px-3 rounded-xl font-sans text-xs font-bold tracking-wider uppercase transition-all duration-150 flex items-center justify-center gap-1.5 ${
                 selectedType === "INCOME"
-                  ? "bg-emerald-500/10 text-budget-green border-emerald-500/20"
-                  : "bg-canvas-soft text-body border-hairline hover:border-body"
+                  ? "bg-emerald-500/10 text-budget-green border border-emerald-500/10 shadow-sm"
+                  : "text-body hover:text-ink"
               }`}
             >
-              <HugeiconsIcon icon={ArrowUpRight01Icon} size={14} strokeWidth={2.2} />
+              <HugeiconsIcon icon={ArrowUpRight01Icon} size={13} strokeWidth={2.5} />
               <span>Income</span>
             </button>
           </div>
