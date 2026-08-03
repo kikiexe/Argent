@@ -2,7 +2,6 @@
 
 import { z } from "zod";
 import { createClient } from "@/utils/supabase/server";
-import { GoogleGenAI } from "@google/genai";
 import { cookies } from "next/headers";
 import { getLocalDateString } from "@/utils/timezone";
 
@@ -27,79 +26,96 @@ export type ExtractionResult = {
 };
 
 export async function extractTransactionFromVoice(text: string): Promise<ExtractionResult> {
-  const trimmedText = text.trim();
-  if (!trimmedText) {
-    return { success: false, error: "Teks input kosong." };
-  }
-
-  if (trimmedText.length > 200) {
-    return { success: false, error: "Teks input terlalu panjang (maksimal 200 karakter)." };
-  }
-
-  // 1. Authenticate user
-  const supabase = await createClient();
-  const cookieStore = await cookies();
-  const timezone = cookieStore.get("user-timezone")?.value || "UTC";
-  const {
-    data: { user },
-    error: authError
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    return { success: false, error: "Sesi Anda telah berakhir. Silakan login kembali." };
-  }
-
-  // 2. Rate Limiting Check
+  console.log("[AI Action] Starting extractTransactionFromVoice with text:", text);
   try {
-    const oneMinuteAgo = new Date(Date.now() - 60 * 1000).toISOString();
-    const { count: countMin, error: countMinErr } = await supabase
-      .from("api_usage_log")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", user.id)
-      .eq("feature", "voice_extract")
-      .gte("created_at", oneMinuteAgo);
-
-    if (countMinErr) throw countMinErr;
-    if (countMin !== null && countMin >= 5) {
-      return { success: false, error: "Terlalu sering mengirim input suara. Silakan tunggu 1 menit." };
+    const trimmedText = text.trim();
+    if (!trimmedText) {
+      console.log("[AI Action] Trimmed text is empty");
+      return { success: false, error: "Teks input kosong." };
     }
 
-    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-    const { count: countDay, error: countDayErr } = await supabase
-      .from("api_usage_log")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", user.id)
-      .eq("feature", "voice_extract")
-      .gte("created_at", twentyFourHoursAgo);
-
-    if (countDayErr) throw countDayErr;
-    if (countDay !== null && countDay >= 50) {
-      return { success: false, error: "Kuota harian Anda untuk input suara telah habis (maksimal 50x per hari)." };
+    if (trimmedText.length > 200) {
+      console.log("[AI Action] Trimmed text exceeds 200 characters:", trimmedText.length);
+      return { success: false, error: "Teks input terlalu panjang (maksimal 200 karakter)." };
     }
-  } catch (dbErr) {
-    console.error("Rate limiting DB error:", dbErr);
-    return { success: false, error: "Gagal memeriksa kuota penggunaan Anda. Silakan coba beberapa saat lagi." };
-  }
 
-  // 3. Fetch active categories to provide as context
-  const { data: categories, error: catError } = await supabase
-    .from("categories")
-    .select("id, name, type")
-    .eq("user_id", user.id);
+    // 1. Authenticate user
+    console.log("[AI Action] Authenticating user...");
+    const supabase = await createClient();
+    const cookieStore = await cookies();
+    const timezone = cookieStore.get("user-timezone")?.value || "UTC";
+    const {
+      data: { user },
+      error: authError
+    } = await supabase.auth.getUser();
 
-  if (catError || !categories || categories.length === 0) {
-    return { success: false, error: "Kategori tidak ditemukan. Buat kategori terlebih dahulu." };
-  }
+    if (authError || !user) {
+      console.error("[AI Action] Auth error or user not found:", authError);
+      return { success: false, error: "Sesi Anda telah berakhir. Silakan login kembali." };
+    }
+    console.log("[AI Action] Authenticated user ID:", user.id, "Timezone:", timezone);
 
-  // 4. Invoke Gemini API
-  const geminiApiKey = process.env.GEMINI_API_KEY;
-  if (!geminiApiKey) {
-    return { success: false, error: "Sistem AI tidak terkonfigurasi (kunci API hilang)." };
-  }
+    // 2. Rate Limiting Check
+    console.log("[AI Action] Checking rate limit...");
+    try {
+      const oneMinuteAgo = new Date(Date.now() - 60 * 1000).toISOString();
+      const { count: countMin, error: countMinErr } = await supabase
+        .from("api_usage_log")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("feature", "voice_extract")
+        .gte("created_at", oneMinuteAgo);
 
-  const todayStr = getLocalDateString(timezone);
+      if (countMinErr) throw countMinErr;
+      console.log("[AI Action] 1-minute usage count:", countMin);
+      if (countMin !== null && countMin >= 5) {
+        return { success: false, error: "Terlalu sering mengirim input suara. Silakan tunggu 1 menit." };
+      }
 
-  const prompt = `
+      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const { count: countDay, error: countDayErr } = await supabase
+        .from("api_usage_log")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("feature", "voice_extract")
+        .gte("created_at", twentyFourHoursAgo);
+
+      if (countDayErr) throw countDayErr;
+      console.log("[AI Action] 24-hour usage count:", countDay);
+      if (countDay !== null && countDay >= 50) {
+        return { success: false, error: "Kuota harian Anda untuk input suara telah habis (maksimal 50x per hari)." };
+      }
+    } catch (dbErr) {
+      console.error("[AI Action] Rate limiting DB error:", dbErr);
+      return { success: false, error: "Gagal memeriksa kuota penggunaan Anda. Silakan coba beberapa saat lagi." };
+    }
+
+    // 3. Fetch active categories to provide as context
+    console.log("[AI Action] Fetching active categories...");
+    const { data: categories, error: catError } = await supabase
+      .from("categories")
+      .select("id, name, type")
+      .eq("user_id", user.id);
+
+    if (catError) {
+      console.error("[AI Action] Categories DB fetch error:", catError);
+      return { success: false, error: "Gagal memuat kategori dari database." };
+    }
+    if (!categories || categories.length === 0) {
+      console.log("[AI Action] No categories found for user");
+      return { success: false, error: "Kategori tidak ditemukan. Buat kategori terlebih dahulu." };
+    }
+    console.log("[AI Action] Categories fetched count:", categories.length);
+
+    // 4. Invoke Gemini API via REST Endpoint (highly compatible across all runtimes)
+    const geminiApiKey = process.env.GEMINI_API_KEY;
+    if (!geminiApiKey) {
+      console.error("[AI Action] GEMINI_API_KEY is not defined in process.env");
+      return { success: false, error: "Sistem AI tidak terkonfigurasi (kunci API hilang)." };
+    }
+
+    const todayStr = getLocalDateString(timezone);
+    const prompt = `
 You are a transaction assistant for a finance app called Pecune.
 Your task is to parse a spoken transcription in Indonesian into structured financial transaction details.
 
@@ -129,82 +145,99 @@ Do not return any markdown formatting or comments.
 Input text: "${trimmedText}"
 `;
 
-  try {
-    const ai = new GoogleGenAI({ apiKey: geminiApiKey });
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
-
-    const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash-lite",
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-        maxOutputTokens: 250,
-        responseSchema: {
-          type: "OBJECT",
-          properties: {
-            type: { type: "STRING", enum: ["EXPENSE", "INCOME"], nullable: true },
-            category_id: { type: "STRING", nullable: true },
-            amount: { type: "NUMBER", nullable: true },
-            date: { type: "STRING", nullable: true },
-            note: { type: "STRING", nullable: true }
-          },
-          required: ["type", "category_id", "amount", "date", "note"]
-        },
-        abortSignal: controller.signal
-      }
-    });
-
-    clearTimeout(timeoutId);
-
-    const responseText = response.text;
-
-    if (!responseText) {
-      throw new Error("Empty response from Gemini API");
-    }
-
-    const parsedData = JSON.parse(responseText.trim());
-    const validated = extractionSchema.safeParse(parsedData);
-
-    if (!validated.success) {
-      console.error("Zod validation failed on AI output:", validated.error);
-      return { success: false, error: "Respons kecerdasan buatan tidak sesuai format." };
-    }
-
-    // Reject out-of-scope prompts (where model sets all relevant fields to null)
-    if (
-      !validated.data.type &&
-      !validated.data.amount &&
-      !validated.data.note
-    ) {
-      return {
-        success: false,
-        error: "Input tidak dikenali sebagai transaksi keuangan. Silakan masukkan deskripsi belanja atau pendapatan Anda."
-      };
-    }
-
-    // Log usage to database after successful validation
+    console.log("[AI Action] Fetching Gemini API REST endpoint...");
     try {
-      const { error: logErr } = await supabase
-        .from("api_usage_log")
-        .insert({
-          user_id: user.id,
-          feature: "voice_extract"
-        });
-      if (logErr) throw logErr;
-    } catch (insertErr) {
-      console.error("Failed to insert api usage log:", insertErr);
-    }
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
-    return {
-      success: true,
-      data: validated.data
-    };
-  } catch (error: any) {
-    console.error("Gemini API call failed:", error);
-    if (error.name === "AbortError") {
-      return { success: false, error: "Koneksi ke sistem AI terputus (waktu habis)." };
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${geminiApiKey}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [{ text: prompt }]
+              }
+            ],
+            generationConfig: {
+              responseMimeType: "application/json",
+              maxOutputTokens: 250
+            }
+          }),
+          signal: controller.signal
+        }
+      );
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Gemini API returned status ${response.status}: ${errorText}`);
+      }
+
+      const resJson = await response.json();
+      const responseText = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
+      console.log("[AI Action] Raw response from Gemini:", responseText);
+
+      if (!responseText) {
+        throw new Error("Empty response from Gemini API");
+      }
+
+      const parsedData = JSON.parse(responseText.trim());
+      const validated = extractionSchema.safeParse(parsedData);
+
+      if (!validated.success) {
+        console.error("[AI Action] Zod validation failed on AI output:", validated.error);
+        return { success: false, error: "Respons kecerdasan buatan tidak sesuai format." };
+      }
+
+      console.log("[AI Action] Validated extraction result:", validated.data);
+
+      // Reject out-of-scope prompts (where model sets all relevant fields to null)
+      if (
+        !validated.data.type &&
+        !validated.data.amount &&
+        !validated.data.note
+      ) {
+        console.log("[AI Action] Prompt identified as out-of-scope");
+        return {
+          success: false,
+          error: "Input tidak dikenali sebagai transaksi keuangan. Silakan masukkan deskripsi belanja atau pendapatan Anda."
+        };
+      }
+
+      // Log usage to database after successful validation
+      try {
+        console.log("[AI Action] Logging usage to DB...");
+        const { error: logErr } = await supabase
+          .from("api_usage_log")
+          .insert({
+            user_id: user.id,
+            feature: "voice_extract"
+          });
+        if (logErr) throw logErr;
+        console.log("[AI Action] Usage log inserted successfully");
+      } catch (insertErr) {
+        console.error("[AI Action] Failed to insert api usage log:", insertErr);
+      }
+
+      return {
+        success: true,
+        data: validated.data
+      };
+    } catch (error: any) {
+      console.error("[AI Action] Gemini API call failed:", error);
+      if (error.name === "AbortError") {
+        return { success: false, error: "Koneksi ke sistem AI terputus (waktu habis)." };
+      }
+      return { success: false, error: "Gagal menghubungkan ke layanan kecerdasan buatan." };
     }
-    return { success: false, error: "Gagal menghubungkan ke layanan kecerdasan buatan." };
+  } catch (globalErr: any) {
+    console.error("[AI Action] Uncaught exception in extractTransactionFromVoice:", globalErr);
+    return { success: false, error: "Terjadi kesalahan internal pada server." };
   }
 }

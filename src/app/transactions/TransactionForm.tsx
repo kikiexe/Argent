@@ -138,37 +138,43 @@ export default function TransactionForm({ categories }: { categories: Category[]
         if (result.success && result.data) {
           const { amount: extractedAmt, date: extractedDate, note: extractedNote, category_id, type } = result.data;
           
-          // Set transaction type and category synchronously
-          const targetType = type || selectedType;
-          if (type) {
-            setSelectedType(type);
-          }
-          if (extractedAmt) {
-            setAmount(extractedAmt.toString());
-          }
-          if (extractedDate) {
-            setDate(extractedDate);
-          }
-          if (extractedNote) {
-            setNote(extractedNote);
-          }
-          if (category_id) {
-            setSelectedCategory(category_id);
-          } else {
-            const filtered = categories.filter((c) => c.type === targetType);
-            if (filtered.length > 0) {
-              setSelectedCategory(filtered[0].id);
-            } else {
-              setSelectedCategory("");
+          // Set transaction details outside transition context to ensure high-priority UI updates
+          setTimeout(() => {
+            const targetType = type || selectedType;
+            if (type) {
+              setSelectedType(type);
             }
-          }
-          setTypedText(""); // Clear input on success
+            if (extractedAmt) {
+              setAmount(extractedAmt.toString());
+            }
+            if (extractedDate) {
+              setDate(extractedDate);
+            }
+            if (extractedNote) {
+              setNote(extractedNote);
+            }
+            if (category_id) {
+              setSelectedCategory(category_id);
+            } else {
+              const filtered = categories.filter((c) => c.type === targetType);
+              if (filtered.length > 0) {
+                setSelectedCategory(filtered[0].id);
+              } else {
+                setSelectedCategory("");
+              }
+            }
+            setTypedText(""); // Clear input on success
+          }, 0);
         } else {
-          setVoiceError(result.error || "Gagal mengolah teks transaksi.");
+          setTimeout(() => {
+            setVoiceError(result.error || "Gagal mengolah teks transaksi.");
+          }, 0);
         }
       } catch (err) {
         console.error("AI processing server action failed:", err);
-        setVoiceError("Gagal memproses data ke server.");
+        setTimeout(() => {
+          setVoiceError("Gagal memproses data ke server.");
+        }, 0);
       }
     });
   };
