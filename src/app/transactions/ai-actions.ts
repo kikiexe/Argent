@@ -135,7 +135,7 @@ Input text: "${trimmedText}"
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.5-flash-lite",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
