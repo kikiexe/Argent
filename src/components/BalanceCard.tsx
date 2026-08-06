@@ -5,8 +5,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/app/actions";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Transaction } from "@/types/database";
+import { Transaction, Wallet } from "@/types/database";
 import BalanceChart from "./BalanceChart";
+import { FluentEmoji } from "@lobehub/fluent-emoji";
 import { 
   ArrowDownLeft01Icon, 
   ArrowUpRight01Icon, 
@@ -26,10 +27,12 @@ interface BalanceCardProps {
   userName: string;
   userEmail: string;
   transactions: (Transaction & { categories: { name: string; type: "EXPENSE" | "INCOME" } | null })[];
+  avatarEmoji?: string;
+  wallets?: (Wallet & { balance: number })[];
 }
 
-export default function BalanceCard({ balance, userName, userEmail, transactions }: BalanceCardProps) {
-  const [view, setView] = useState<"balance" | "statistics">("balance");
+export default function BalanceCard({ balance, userName, userEmail, transactions, avatarEmoji, wallets = [] }: BalanceCardProps) {
+  const [view, setView] = useState<"balance" | "statistics" | "wallets">("balance");
   const [isVisible, setIsVisible] = useState(true);
   const pathname = usePathname();
 
@@ -95,14 +98,33 @@ export default function BalanceCard({ balance, userName, userEmail, transactions
               <span className="font-semibold">{userEmail}</span>
             </div>
             
-            {/* Desktop View Switcher */}
-            <button
-              onClick={() => setView(view === "balance" ? "statistics" : "balance")}
-              className="bg-white/10 text-white hover:bg-white/20 border border-white/10 px-3.5 py-1.5 rounded-full font-sans font-bold text-[10px] tracking-wider uppercase transition-all duration-150 flex items-center gap-1.5"
-            >
-              <HugeiconsIcon icon={view === "balance" ? Analytics01Icon : Wallet01Icon} size={12} strokeWidth={2} className="text-indigo-200" />
-              <span>{view === "balance" ? "Statistics" : "Balance"}</span>
-            </button>
+            {/* Desktop View Switcher Group */}
+            <div className="flex bg-white/10 p-0.5 rounded-full border border-white/10">
+              <button
+                onClick={() => setView("balance")}
+                className={`px-3 py-1 rounded-full font-sans font-bold text-[9px] tracking-wider uppercase transition-all duration-150 flex items-center gap-1 ${
+                  view === "balance" ? "bg-white text-indigo-600 shadow-sm" : "text-white hover:bg-white/10"
+                }`}
+              >
+                <span>Balance</span>
+              </button>
+              <button
+                onClick={() => setView("statistics")}
+                className={`px-3 py-1 rounded-full font-sans font-bold text-[9px] tracking-wider uppercase transition-all duration-150 flex items-center gap-1 ${
+                  view === "statistics" ? "bg-white text-indigo-600 shadow-sm" : "text-white hover:bg-white/10"
+                }`}
+              >
+                <span>Stats</span>
+              </button>
+              <button
+                onClick={() => setView("wallets")}
+                className={`px-3 py-1 rounded-full font-sans font-bold text-[9px] tracking-wider uppercase transition-all duration-150 flex items-center gap-1 ${
+                  view === "wallets" ? "bg-white text-indigo-600 shadow-sm" : "text-white hover:bg-white/10"
+                }`}
+              >
+                <span>Wallets</span>
+              </button>
+            </div>
 
             <form action={logout}>
               <button
@@ -119,10 +141,16 @@ export default function BalanceCard({ balance, userName, userEmail, transactions
         {/* Mobile Header Row (Hidden on Desktop) */}
         <div className="flex sm:hidden items-center justify-between mb-5">
           <div className="flex items-center gap-3">
-            {/* Initials Avatar */}
-            <div className="w-12 h-12 rounded-full bg-white/20 text-white border border-white/20 font-bold flex items-center justify-center font-sans text-sm shadow-md uppercase">
-              {userName.slice(0, 2)}
-            </div>
+            {/* Initials or 3D Emoji Avatar */}
+            {avatarEmoji ? (
+              <div className="w-12 h-12 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shadow-md">
+                <FluentEmoji emoji={avatarEmoji} type="3d" size={32} />
+              </div>
+            ) : (
+              <div className="w-12 h-12 rounded-full bg-white/20 text-white border border-white/20 font-bold flex items-center justify-center font-sans text-sm shadow-md uppercase">
+                {userName.slice(0, 2)}
+              </div>
+            )}
             
             <div className="space-y-0.5">
               {view === "balance" ? (
@@ -134,7 +162,7 @@ export default function BalanceCard({ balance, userName, userEmail, transactions
                     {userName}
                   </h2>
                 </>
-              ) : (
+              ) : view === "statistics" ? (
                 <>
                   <span className="block font-sans text-[10px] text-indigo-100 font-semibold uppercase tracking-wider">
                     Overview
@@ -143,20 +171,85 @@ export default function BalanceCard({ balance, userName, userEmail, transactions
                     Statistics
                   </h2>
                 </>
+              ) : (
+                <>
+                  <span className="block font-sans text-[10px] text-indigo-100 font-semibold uppercase tracking-wider">
+                    Aset &amp; Rekening
+                  </span>
+                  <h2 className="font-sans text-base font-bold text-white capitalize leading-none">
+                    Multi Wallet
+                  </h2>
+                </>
               )}
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Mobile View Switcher (Replaces Notification Bell) */}
-            <button 
-              onClick={() => setView(view === "balance" ? "statistics" : "balance")}
-              className="w-10 h-10 bg-white/10 hover:bg-white/15 border border-white/10 rounded-full flex items-center justify-center text-white transition-all shadow-sm"
-              title={view === "balance" ? "View Statistics" : "View Balance"}
-              aria-label={view === "balance" ? "View statistics" : "View balance"}
-            >
-              <HugeiconsIcon icon={view === "balance" ? Analytics01Icon : Wallet01Icon} size={18} strokeWidth={1.8} />
-            </button>
+            {/* Show different navigation buttons based on current view */}
+            {view === "balance" ? (
+              <>
+                {/* Go to Statistics */}
+                <button 
+                  onClick={() => setView("statistics")}
+                  className="w-10 h-10 bg-white/10 hover:bg-white/15 border border-white/10 rounded-full flex items-center justify-center text-white transition-all shadow-sm"
+                  title="Statistik"
+                  aria-label="Statistik"
+                >
+                  <HugeiconsIcon icon={Analytics01Icon} size={18} strokeWidth={1.8} />
+                </button>
+                {/* Go to Wallets */}
+                <button 
+                  onClick={() => setView("wallets")}
+                  className="w-10 h-10 bg-white/10 hover:bg-white/15 border border-white/10 rounded-full flex items-center justify-center text-white transition-all shadow-sm"
+                  title="Dompet"
+                  aria-label="Dompet"
+                >
+                  <HugeiconsIcon icon={Wallet01Icon} size={18} strokeWidth={1.8} />
+                </button>
+              </>
+            ) : view === "statistics" ? (
+              <>
+                {/* Go to Balance */}
+                <button 
+                  onClick={() => setView("balance")}
+                  className="w-10 h-10 bg-white/10 hover:bg-white/15 border border-white/10 rounded-full flex items-center justify-center text-white transition-all shadow-sm"
+                  title="Dashboard"
+                  aria-label="Dashboard"
+                >
+                  <HugeiconsIcon icon={Home01Icon} size={18} strokeWidth={1.8} />
+                </button>
+                {/* Go to Wallets */}
+                <button 
+                  onClick={() => setView("wallets")}
+                  className="w-10 h-10 bg-white/10 hover:bg-white/15 border border-white/10 rounded-full flex items-center justify-center text-white transition-all shadow-sm"
+                  title="Dompet"
+                  aria-label="Dompet"
+                >
+                  <HugeiconsIcon icon={Wallet01Icon} size={18} strokeWidth={1.8} />
+                </button>
+              </>
+            ) : (
+              <>
+                {/* Go to Balance */}
+                <button 
+                  onClick={() => setView("balance")}
+                  className="w-10 h-10 bg-white/10 hover:bg-white/15 border border-white/10 rounded-full flex items-center justify-center text-white transition-all shadow-sm"
+                  title="Dashboard"
+                  aria-label="Dashboard"
+                >
+                  <HugeiconsIcon icon={Home01Icon} size={18} strokeWidth={1.8} />
+                </button>
+                {/* Go to Statistics */}
+                <button 
+                  onClick={() => setView("statistics")}
+                  className="w-10 h-10 bg-white/10 hover:bg-white/15 border border-white/10 rounded-full flex items-center justify-center text-white transition-all shadow-sm"
+                  title="Statistik"
+                  aria-label="Statistik"
+                >
+                  <HugeiconsIcon icon={Analytics01Icon} size={18} strokeWidth={1.8} />
+                </button>
+              </>
+            )}
             
             {/* Sign Out Shortcut */}
             <form action={logout}>
@@ -188,6 +281,7 @@ export default function BalanceCard({ balance, userName, userEmail, transactions
                 >
                   <HugeiconsIcon icon={isVisible ? EyeIcon : EyeOffIcon} size={15} strokeWidth={2} />
                 </button>
+
               </div>
 
               <div className="space-y-0.5">
@@ -220,9 +314,47 @@ export default function BalanceCard({ balance, userName, userEmail, transactions
               </Link>
             </div>
           </>
-        ) : (
+        ) : view === "statistics" ? (
           /* Statistics Card Body */
           <BalanceChart transactions={transactions} />
+        ) : (
+          /* Wallets Card Body */
+          <div className="space-y-3 max-h-[160px] overflow-y-auto pr-1 no-scrollbar">
+            {wallets && wallets.length > 0 ? (
+              wallets.map((w) => (
+                <div key={w.id} className="flex items-center justify-between bg-white/10 hover:bg-white/15 border border-white/10 p-3 rounded-2xl transition-all shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/90">
+                      <HugeiconsIcon icon={Wallet01Icon} size={14} strokeWidth={2} />
+                    </div>
+                    <div className="text-left">
+                      <span className="block font-sans text-xs font-bold text-white capitalize leading-snug">
+                        {w.name}
+                      </span>
+                      <span className="block font-sans text-[8px] font-bold text-indigo-200 uppercase tracking-widest leading-none mt-0.5">
+                        {w.type.replace("_", " ")}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    {w.is_default && (
+                      <span className="text-[7px] font-sans font-black tracking-widest uppercase bg-indigo-500/30 border border-indigo-400/30 text-indigo-100 px-1.5 py-0.5 rounded">
+                        Default
+                      </span>
+                    )}
+                    <span className="font-sans text-sm font-extrabold text-white">
+                      {formatCurrency(w.balance || 0)}
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center font-sans text-xs text-indigo-200 py-6">
+                Tidak ada dompet ditemukan.
+              </div>
+            )}
+          </div>
         )}
 
       </div>

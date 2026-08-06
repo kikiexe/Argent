@@ -3,7 +3,7 @@
 import { useActionState, useState, useEffect, useTransition, useRef } from "react";
 import { createTransaction } from "./actions";
 import { extractTransactionFromVoice } from "./ai-actions";
-import { Category } from "@/types/database";
+import { Category, Wallet } from "@/types/database";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { 
   Receipt, 
@@ -19,7 +19,13 @@ import {
   MicOff01Icon
 } from "@hugeicons/core-free-icons";
 
-export default function TransactionForm({ categories }: { categories: Category[] }) {
+export default function TransactionForm({
+  categories,
+  wallets
+}: {
+  categories: Category[];
+  wallets: Wallet[];
+}) {
   const [state, formAction, isPending] = useActionState(createTransaction, null);
   // Get today's date in YYYY-MM-DD local format once on mount
   const [todayStr] = useState(() => new Date().toLocaleDateString("sv-SE"));
@@ -28,6 +34,11 @@ export default function TransactionForm({ categories }: { categories: Category[]
   const [selectedCategory, setSelectedCategory] = useState<string>(() => {
     const filtered = categories.filter((c) => c.type === "EXPENSE");
     return filtered.length > 0 ? filtered[0].id : "";
+  });
+
+  const [selectedWallet, setSelectedWallet] = useState<string>(() => {
+    const def = wallets.find((w) => w.is_default);
+    return def ? def.id : wallets.length > 0 ? wallets[0].id : "";
   });
   
   // Controlled form states
@@ -71,8 +82,10 @@ export default function TransactionForm({ categories }: { categories: Category[]
       setAmount("");
       setNote("");
       setDate(todayStr);
+      const def = wallets.find((w) => w.is_default);
+      setSelectedWallet(def ? def.id : wallets.length > 0 ? wallets[0].id : "");
     }
-  }, [state, todayStr]);
+  }, [state, todayStr, wallets]);
 
   // Voice input handling
   const toggleListening = () => {
@@ -352,6 +365,39 @@ export default function TransactionForm({ categories }: { categories: Category[]
             )}
           </div>
 
+          {/* Wallet selection */}
+          <div className="col-span-1">
+            <label htmlFor="wallet_id" className="block font-sans font-bold text-[9px] tracking-widest text-body uppercase mb-1.5">
+              Wallet
+            </label>
+            {wallets.length === 0 ? (
+              <div className="text-[10px] text-body font-sans italic p-3 border border-dashed border-hairline bg-canvas-soft rounded-2xl">
+                No wallets found.
+              </div>
+            ) : (
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                  <HugeiconsIcon icon={Coins01Icon} size={14} strokeWidth={1.8} />
+                </div>
+                <select
+                  id="wallet_id"
+                  name="wallet_id"
+                  required
+                  disabled={isPending}
+                  value={selectedWallet}
+                  onChange={(e) => setSelectedWallet(e.target.value)}
+                  className="w-full bg-canvas-soft text-ink border border-hairline p-2.5 pl-9 rounded-2xl font-sans text-base sm:text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50 appearance-none"
+                >
+                  {wallets.map((w) => (
+                    <option key={w.id} value={w.id}>
+                      {w.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+
           {/* Amount */}
           <div className="col-span-1">
             <label htmlFor="amount" className="block font-sans font-bold text-[9px] tracking-widest text-body uppercase mb-1.5">
@@ -378,7 +424,7 @@ export default function TransactionForm({ categories }: { categories: Category[]
           </div>
 
           {/* Transaction Date */}
-          <div className="col-span-2">
+          <div className="col-span-1">
             <label htmlFor="date" className="block font-sans font-bold text-[9px] tracking-widest text-body uppercase mb-1.5">
               Date
             </label>

@@ -8,6 +8,7 @@ const transactionSchema = z.object({
   type: z.enum(["EXPENSE", "INCOME"], { errorMap: () => ({ message: "Tipe transaksi tidak valid" }) }),
   amount: z.coerce.number().positive("Nominal transaksi harus lebih besar dari 0"),
   category_id: z.string().uuid("Kategori wajib dipilih"),
+  wallet_id: z.string().uuid("Dompet/Bank wajib dipilih"),
   date: z.string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Format tanggal tidak valid (YYYY-MM-DD)")
     .refine((val) => {
@@ -26,6 +27,7 @@ export async function createTransaction(prevState: ActionState, formData: FormDa
   const type = formData.get("type") as string;
   const amount = formData.get("amount") as string;
   const category_id = formData.get("category_id") as string;
+  const wallet_id = formData.get("wallet_id") as string;
   const date = formData.get("date") as string;
   const note = formData.get("note") as string;
 
@@ -33,6 +35,7 @@ export async function createTransaction(prevState: ActionState, formData: FormDa
     type,
     amount,
     category_id,
+    wallet_id: wallet_id || null,
     date,
     note: note || null
   });
@@ -67,10 +70,23 @@ export async function createTransaction(prevState: ActionState, formData: FormDa
     return { error: "Tipe transaksi tidak cocok dengan tipe kategori." };
   }
 
+  /* Verify wallet belongs to the user */
+  const { data: wallet, error: walletError } = await supabase
+    .from("wallets")
+    .select("id")
+    .eq("id", validated.data.wallet_id)
+    .eq("user_id", user.id)
+    .single();
+
+  if (walletError || !wallet) {
+    return { error: "Wallet tidak ditemukan atau bukan milik Anda." };
+  }
+
   const { error: insertError } = await supabase.from("transactions").insert({
     type: validated.data.type,
     amount: validated.data.amount,
     category_id: validated.data.category_id,
+    wallet_id: validated.data.wallet_id,
     date: validated.data.date,
     note: validated.data.note || null,
     user_id: user.id

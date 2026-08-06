@@ -13,6 +13,7 @@
     "@google/genai": "^2.15.0",
     "@hugeicons/core-free-icons": "^4.2.3",
     "@hugeicons/react": "^1.1.9",
+    "@lobehub/fluent-emoji": "^4.1.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.48.0",
     "clsx": "^2.1.1",

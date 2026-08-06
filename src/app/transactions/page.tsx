@@ -37,8 +37,8 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
     throw new Error("Unauthorized");
   }
 
-  /* Fetch user categories for the input select and transactions for current month and year in parallel */
-  const [categoriesResult, transactionsResult] = await Promise.all([
+  /* Fetch user categories, transactions, and wallets in parallel */
+  const [categoriesResult, transactionsResult, walletsResult] = await Promise.all([
     supabase
       .from("categories")
       .select("*")
@@ -52,16 +52,27 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
           id,
           name,
           type
+        ),
+        wallets (
+          id,
+          name,
+          type
         )
       `)
       .eq("user_id", user.id)
       .gte("date", startDate)
       .lte("date", endDate)
-      .order("date", { ascending: false })
+      .order("date", { ascending: false }),
+    supabase
+      .from("wallets")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("name", { ascending: true })
   ]);
 
   const categories = categoriesResult.data;
   const transactions = transactionsResult.data;
+  const wallets = walletsResult.data;
 
   return (
     <div className="min-h-screen bg-canvas flex flex-col justify-between">
@@ -70,7 +81,7 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
       <main className="flex-grow max-w-6xl w-full mx-auto px-6 pt-12 pb-32 sm:pb-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           <div className="lg:col-span-1">
-            <TransactionForm categories={categories || []} />
+            <TransactionForm categories={categories || []} wallets={wallets || []} />
           </div>
           <div className="lg:col-span-2">
             <TransactionTable

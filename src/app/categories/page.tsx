@@ -1,7 +1,6 @@
 import Header from "@/components/Header";
 import { createClient } from "@/utils/supabase/server";
-import CategoryForm from "./CategoryForm";
-import CategoryTable from "./CategoryTable";
+import CategoriesPageClient from "./CategoriesPageClient";
 
 export default async function CategoriesPage() {
   const supabase = await createClient();
@@ -13,25 +12,25 @@ export default async function CategoriesPage() {
     throw new Error("Unauthorized");
   }
 
-  const { data: categories } = await supabase
-    .from("categories")
-    .select("*")
-    .eq("user_id", user.id)
-    .order("name", { ascending: true });
+  /* Fetch user categories and wallet balances in parallel */
+  const [categoriesResult, walletsResult] = await Promise.all([
+    supabase
+      .from("categories")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("name", { ascending: true }),
+    supabase.rpc("get_wallet_balances")
+  ]);
+
+  const categories = categoriesResult.data || [];
+  const wallets = walletsResult.data || [];
 
   return (
     <div className="min-h-screen bg-canvas flex flex-col justify-between">
       <Header />
       
       <main className="flex-grow max-w-6xl w-full mx-auto px-6 pt-12 pb-32 sm:pb-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          <div className="lg:col-span-1">
-            <CategoryForm />
-          </div>
-          <div className="lg:col-span-2">
-            <CategoryTable categories={categories || []} />
-          </div>
-        </div>
+        <CategoriesPageClient categories={categories} wallets={wallets} />
       </main>
     </div>
   );

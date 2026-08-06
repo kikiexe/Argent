@@ -27,9 +27,10 @@ async function fetchUserStatsSafely(supabase: any, timezone: string) {
 interface BalanceCardWrapperProps extends WrapperProps {
   userName: string;
   userEmail: string;
+  avatarEmoji?: string;
 }
 
-export async function BalanceCardWrapper({ userId, userName, userEmail }: BalanceCardWrapperProps) {
+export async function BalanceCardWrapper({ userId, userName, userEmail, avatarEmoji }: BalanceCardWrapperProps) {
   const supabase = await createClient();
   const cookieStore = await cookies();
   const timezone = cookieStore.get("user-timezone")?.value || "UTC";
@@ -38,8 +39,8 @@ export async function BalanceCardWrapper({ userId, userName, userEmail }: Balanc
   const chartStartDate = new Date(currentYear, currentMonth - 12, 1);
   const chartStartDateString = `${chartStartDate.getFullYear()}-${String(chartStartDate.getMonth() + 1).padStart(2, "0")}-01`;
 
-  /* Fetch lifetime balance stats and chart transaction data in parallel */
-  const [statsResult, chartTxResult] = await Promise.all([
+  /* Fetch lifetime balance stats, chart transactions, and wallets in parallel */
+  const [statsResult, chartTxResult, walletsResult] = await Promise.all([
     fetchUserStatsSafely(supabase, timezone),
     supabase.from("transactions").select(`
       *,
@@ -47,12 +48,14 @@ export async function BalanceCardWrapper({ userId, userName, userEmail }: Balanc
         name,
         type
       )
-    `).eq("user_id", userId).gte("date", chartStartDateString).order("date", { ascending: false })
+    `).eq("user_id", userId).gte("date", chartStartDateString).order("date", { ascending: false }),
+    supabase.rpc("get_wallet_balances")
   ]);
 
   const statsData = statsResult.data as { lifetime_balance: number; current_month_expenses: number } | null;
   const balance = statsData?.lifetime_balance ? Number(statsData.lifetime_balance) : 0;
   const chartTransactions = chartTxResult.data || [];
+  const wallets = walletsResult.data || [];
 
   return (
     <BalanceCard 
@@ -60,6 +63,8 @@ export async function BalanceCardWrapper({ userId, userName, userEmail }: Balanc
       userName={userName} 
       userEmail={userEmail} 
       transactions={chartTransactions} 
+      avatarEmoji={avatarEmoji}
+      wallets={wallets}
     />
   );
 }

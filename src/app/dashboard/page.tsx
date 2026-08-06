@@ -42,7 +42,7 @@ export default async function HomePage() {
         
         {/* Balance Card Section with Suspense */}
         <Suspense fallback={<BalanceCardSkeleton userName={userName} userEmail={user.email || ""} />}>
-          <BalanceCardWrapper userId={user.id} userName={userName} userEmail={user.email || ""} />
+          <BalanceCardWrapper userId={user.id} userName={userName} userEmail={user.email || ""} avatarEmoji={user.user_metadata?.avatar_emoji} />
         </Suspense>
 
         <main className="max-w-4xl w-full mx-auto px-6 pt-10 pb-32 sm:pb-12 space-y-8">

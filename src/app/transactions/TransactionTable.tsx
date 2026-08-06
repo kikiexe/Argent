@@ -20,6 +20,11 @@ interface ExtendedTransaction extends Transaction {
     name: string;
     type: "EXPENSE" | "INCOME";
   } | null;
+  wallets?: {
+    id: string;
+    name: string;
+    type: "CASH" | "BANK" | "E_WALLET" | "CREDIT";
+  } | null;
 }
 
 const MONTHS = [
@@ -173,8 +178,17 @@ export default function TransactionTable({
                     <span className="block font-sans text-xs font-black text-ink">
                       {transaction.categories?.name || "Uncategorized"}
                     </span>
-                    <span className="block font-sans text-[10px] text-body font-semibold">
-                      {formatDate(transaction.date)} {transaction.note && `• ${transaction.note}`}
+                    <span className="flex font-sans text-[10px] text-body font-semibold items-center gap-1.5 flex-wrap mt-0.5">
+                      <span>{formatDate(transaction.date)}</span>
+                      {transaction.note && <span>• {transaction.note}</span>}
+                      <span>•</span>
+                      <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${
+                        transaction.wallets
+                          ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400 border border-indigo-500/10"
+                          : "bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-500/10 animate-pulse"
+                      }`}>
+                        {transaction.wallets?.name || "Belum Diklasifikasi"}
+                      </span>
                     </span>
                   </div>
                 </div>
