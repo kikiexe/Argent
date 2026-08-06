@@ -80,9 +80,6 @@ export default function CategoryForm({
                   Category Name
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                    <HugeiconsIcon icon={Tag01Icon} size={16} strokeWidth={1.8} />
-                  </div>
                   <input
                     id="name"
                     name="name"
@@ -91,7 +88,7 @@ export default function CategoryForm({
                     maxLength={50}
                     disabled={isCategoryPending}
                     placeholder="e.g. Groceries"
-                    className="w-full bg-canvas-soft text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-base sm:text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
+                    className="w-full bg-canvas-soft text-ink border border-hairline p-3 px-4 rounded-2xl font-sans text-base sm:text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
                   />
                 </div>
               </div>
@@ -173,9 +170,6 @@ export default function CategoryForm({
                   Wallet Name
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                    <HugeiconsIcon icon={Coins01Icon} size={16} strokeWidth={1.8} />
-                  </div>
                   <input
                     id="wallet_name"
                     name="name"
@@ -186,7 +180,7 @@ export default function CategoryForm({
                     value={walletName}
                     onChange={(e) => setWalletName(e.target.value)}
                     placeholder="e.g. Bank Mandiri, GoPay"
-                    className="w-full bg-canvas-soft text-ink border border-hairline p-3 pl-10 rounded-2xl font-sans text-base sm:text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
+                    className="w-full bg-canvas-soft text-ink border border-hairline p-3 px-4 rounded-2xl font-sans text-base sm:text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
                   />
                 </div>
               </div>

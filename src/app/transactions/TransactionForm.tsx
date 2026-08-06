@@ -343,9 +343,6 @@ export default function TransactionForm({
               </div>
             ) : (
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                  <HugeiconsIcon icon={Folder01Icon} size={14} strokeWidth={1.8} />
-                </div>
                 <select
                   id="category_id"
                   name="category_id"
@@ -353,7 +350,7 @@ export default function TransactionForm({
                   disabled={isPending}
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full bg-canvas-soft text-ink border border-hairline p-2.5 pl-9 rounded-2xl font-sans text-base sm:text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50 appearance-none"
+                  className="w-full bg-canvas-soft text-ink border border-hairline p-2.5 px-4 rounded-2xl font-sans text-base sm:text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50 appearance-none"
                 >
                   {filteredCategories.map((cat) => (
                     <option key={cat.id} value={cat.id}>
@@ -376,9 +373,6 @@ export default function TransactionForm({
               </div>
             ) : (
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                  <HugeiconsIcon icon={Coins01Icon} size={14} strokeWidth={1.8} />
-                </div>
                 <select
                   id="wallet_id"
                   name="wallet_id"
@@ -386,7 +380,7 @@ export default function TransactionForm({
                   disabled={isPending}
                   value={selectedWallet}
                   onChange={(e) => setSelectedWallet(e.target.value)}
-                  className="w-full bg-canvas-soft text-ink border border-hairline p-2.5 pl-9 rounded-2xl font-sans text-base sm:text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50 appearance-none"
+                  className="w-full bg-canvas-soft text-ink border border-hairline p-2.5 px-4 rounded-2xl font-sans text-base sm:text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50 appearance-none"
                 >
                   {wallets.map((w) => (
                     <option key={w.id} value={w.id}>
@@ -404,9 +398,6 @@ export default function TransactionForm({
               Amount (IDR)
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                <HugeiconsIcon icon={Coins01Icon} size={14} strokeWidth={1.8} />
-              </div>
               <input
                 id="amount"
                 name="amount"
@@ -418,7 +409,7 @@ export default function TransactionForm({
                 placeholder="0.00"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="w-full bg-canvas-soft text-ink border border-hairline p-2.5 pl-9 rounded-2xl font-sans text-base sm:text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
+                className="w-full bg-canvas-soft text-ink border border-hairline p-2.5 px-4 rounded-2xl font-sans text-base sm:text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
               />
             </div>
           </div>
@@ -429,9 +420,6 @@ export default function TransactionForm({
               Date
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                <HugeiconsIcon icon={Calendar01Icon} size={14} strokeWidth={1.8} />
-              </div>
               <input
                 id="date"
                 name="date"
@@ -440,7 +428,7 @@ export default function TransactionForm({
                 disabled={isPending}
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full bg-canvas-soft text-ink border border-hairline p-2.5 pl-9 rounded-2xl font-sans text-base sm:text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50 appearance-none"
+                className="w-full bg-canvas-soft text-ink border border-hairline p-2.5 px-4 rounded-2xl font-sans text-base sm:text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50 appearance-none"
               />
             </div>
           </div>
@@ -451,9 +439,6 @@ export default function TransactionForm({
               Note (Optional)
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                <HugeiconsIcon icon={NotebookIcon} size={14} strokeWidth={1.8} />
-              </div>
               <input
                 id="note"
                 name="note"
@@ -463,7 +448,7 @@ export default function TransactionForm({
                 placeholder="Weekly groceries"
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                className="w-full bg-canvas-soft text-ink border border-hairline p-2.5 pl-9 rounded-2xl font-sans text-base sm:text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
+                className="w-full bg-canvas-soft text-ink border border-hairline p-2.5 px-4 rounded-2xl font-sans text-base sm:text-sm focus:outline-none focus:bg-card focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-150 disabled:opacity-50"
               />
             </div>
           </div>
